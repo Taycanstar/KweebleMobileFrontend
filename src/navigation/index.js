@@ -572,7 +572,7 @@ const TabNavigator = props => {
         }}
       />
 
-      <Tab.Screen
+      {/* <Tab.Screen
         name="MarketplaceStack"
         component={MarketplaceStack}
         options={{
@@ -584,7 +584,7 @@ const TabNavigator = props => {
             />
           ),
         }}
-      />
+      /> */}
     </Tab.Navigator>
   );
   // };

@@ -13,6 +13,7 @@ import {
   Platform,
   Animated,
   Modal,
+  Dimensions,
   RefreshControl,
 } from 'react-native';
 import React, {useState, useRef, useEffect} from 'react';
@@ -40,11 +41,17 @@ import {
   FacebookLoader,
   InstagramLoader,
 } from 'react-native-easy-content-loader';
+import {BlurView} from '@react-native-community/blur';
 
 const MIN_HEIGHT = Platform.OS === 'ios' ? 90 : 55;
-const MAX_HEIGHT = 250;
+const MAX_HEIGHT = 300;
+const screenWidth = Dimensions.get('window').width;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+// const MAX_HEIGHT = 250;
 const TITLE_MIN_HEIGHT = 30;
 const TITLE_MAX_HEIGHT = 70;
+
 const scrollY = new Animated.Value(0);
 
 const headerHeight = scrollY.interpolate({
@@ -407,6 +414,67 @@ const OtherUserProfile = props => {
     }
   };
 
+  const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
+  const blurOpacity = scrollY.interpolate({
+    inputRange: [0, 200],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, MAX_HEIGHT - MIN_HEIGHT],
+    outputRange: [MAX_HEIGHT, MIN_HEIGHT],
+    extrapolate: 'clamp',
+  });
+
+  const imageScale = scrollY.interpolate({
+    inputRange: [-MAX_HEIGHT, 0],
+    outputRange: [2, 1], // Scale up by 2 when scrolled down by MAX_HEIGHT
+    extrapolateLeft: 'extend', // Allow extrapolation when scrolled down
+    extrapolateRight: 'clamp', // Don't extrapolate when scrolled up
+  });
+  const [imageAspectRatio, setImageAspectRatio] = useState(1);
+
+  const [maxWidth, setMaxWidth] = useState(0);
+
+  useEffect(() => {
+    // Get the screen width
+    const screenWidth = Dimensions.get('window').width;
+
+    // Set the max width to a slightly larger value than the screen width
+    setMaxWidth(screenWidth + 100);
+  }, []);
+
+  // Inside your component, after fetching the image source, calculate the aspect ratio
+  useEffect(() => {
+    if (data?.photo) {
+      Image.getSize(data.photo, (width, height) => {
+        const aspectRatio = width / height;
+        setImageAspectRatio(aspectRatio);
+      });
+    }
+  }, [data?.photo]);
+
+  const [textColor, setTextColor] = useState('white');
+
+  const [scale, setScale] = useState(1);
+
+  const [imageWidth, setImageWidth] = useState(SCREEN_WIDTH * 1.15 * scale);
+
+  const handleScroll = event => {
+    const {contentOffset} = event.nativeEvent;
+
+    // Update the scrollY value using setValue
+    scrollY.setValue(contentOffset.y);
+
+    // Determine the new width based on the scroll position
+    const newWidth = contentOffset.y >= 0 ? SCREEN_WIDTH : SCREEN_WIDTH * 2.15;
+    setImageWidth(newWidth);
+
+    const newColor = scrollY <= 150 ? 'white' : 'rgba(52,52,52,0)';
+    setTextColor(newColor);
+  };
+
   return (
     // <ScrollView style={styles.container}>
     <View style={{flex: 1, backgroundColor: 'white'}}>
@@ -422,7 +490,7 @@ const OtherUserProfile = props => {
                 paddingHorizontal: 10,
                 paddingTop: 50,
                 paddingBottom: 5,
-                backgroundColor: scrollY,
+                backgroundColor: 'rgba(52,52,52,0)',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 zIndex: 5,
@@ -435,7 +503,7 @@ const OtherUserProfile = props => {
               </Pressable>
               <Text
                 style={{
-                  color: result < 185 ? 'white' : 'rgba(52, 52, 52, 0)',
+                  color: textColor,
                   fontSize: 24,
                   fontWeight: 'bold',
                   textAlign: 'left',
@@ -472,12 +540,7 @@ const OtherUserProfile = props => {
             <ScrollView
               style={{height: 350, overflow: 'visible', flex: 1}}
               scrollEventThrottle={1}
-              onScroll={Animated.event(
-                [{nativeEvent: {contentOffset: {y: scrollY}}}],
-                {
-                  useNativeDriver: false,
-                },
-              )}>
+              onScroll={handleScroll}>
               <Animated.Image
                 resizeMode="cover"
                 source={
@@ -485,31 +548,29 @@ const OtherUserProfile = props => {
                     ? {uri: photo}
                     : require('../../../assets/images/hx.png')
                 }
-                style={[
-                  styles.max,
-                  {
-                    transform: [
-                      {
-                        translateY: scrollY.interpolate({
-                          inputRange: [-1000, 0],
-                          outputRange: [-100, 0],
-                          extrapolate: 'clamp',
-                        }),
-                      },
-                      {
-                        scale: scrollY.interpolate({
-                          inputRange: [-3000, 0],
-                          outputRange: [20, 1],
-                          extrapolate: 'clamp',
-                        }),
-                      },
-                    ],
-                  },
-                ]}
+                style={{
+                  height: '100%',
+                  width: imageWidth,
+                  aspectRatio: imageAspectRatio,
+                  transform: [{scale: imageScale}],
+                }}
+              />
+              <AnimatedBlurView
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  height: '100%',
+                  width: '100%',
+                  opacity: blurOpacity,
+                }}
+                blurType="transparent"
+                blurAmount={10}
+                blurRadius={10}
+                overlayColor={'rgba(255, 255, 255, 0.3)'}
               />
             </ScrollView>
           </Animated.View>
-          <Animated.View
+          {/* <Animated.View
             style={{
               bottom: headerTitle,
               zIndex: 90,
@@ -528,7 +589,7 @@ const OtherUserProfile = props => {
               }}>
               {data.username}
             </Text>
-          </Animated.View>
+          </Animated.View> */}
 
           <ScrollView
             refreshControl={
@@ -657,19 +718,6 @@ const OtherUserProfile = props => {
                     paddingBottom: 10,
                   }}>
                   <Text style={{fontWeight: '700', fontSize: 16}}>Events</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => setActiveTab('products')}
-                  style={{
-                    // paddingTop: 5,
-                    borderBottomWidth: 3,
-                    borderBottomColor:
-                      activeTab === 'products' ? Colors.primary : 'white',
-                    paddingBottom: 10,
-                  }}>
-                  <Text style={{fontWeight: '700', fontSize: 16}}>
-                    Products
-                  </Text>
                 </TouchableOpacity>
               </View>
               <View>

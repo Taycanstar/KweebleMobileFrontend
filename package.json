@@ -13,7 +13,7 @@
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
     "@cometchat-pro/react-native-chat": "^3.0.2",
     "@react-native-async-storage/async-storage": "^1.17.6",
-    "@react-native-community/blur": "^4.3.0",
+    "@react-native-community/blur": "^4.3.2",
     "@react-native-community/netinfo": "^9.3.0",
     "@react-native-picker/picker": "^2.4.8",
     "@react-navigation/bottom-tabs": "^6.3.1",

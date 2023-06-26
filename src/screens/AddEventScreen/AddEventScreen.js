@@ -89,6 +89,13 @@ const AddEventScreen = props => {
   const [isLoading, setIsLoading] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(false);
   const [isPhotoLoading, setIsPhotoLoading] = useState(false);
+  const [eventDate, setEventDate] = useState(new Date());
+  const [eventEndDate, setEventEndDate] = useState(new Date());
+  const [notificationTime, setNotificationTime] = useState(new Date());
+  const [notiText, setNotiText] = useState('');
+  const [notificationDescription, setNotificationDescription] = useState('');
+  const [eventLink, setEventLink] = useState('');
+  const [notificationId, setNotificationId] = useState('');
 
   const changeScopeVisible = bool => {
     setIsScopeVisible(bool);
@@ -337,6 +344,13 @@ const AddEventScreen = props => {
           media,
           modOnly,
           repeat,
+          date: eventDate,
+          notificationTime,
+          endDate: eventEndDate,
+          notiText,
+          notificationDescription,
+          notificationId,
+          link: eventLink,
         },
         {
           headers: {
@@ -955,7 +969,7 @@ const AddEventScreen = props => {
                     </View>
                   </View>
                 </View>
-
+                {/* 
                 <View style={styles.row3}>
                   <View>
                     <Text style={styles.title2}>Display host</Text>
@@ -968,10 +982,10 @@ const AddEventScreen = props => {
                       onValueChange={toggle}
                       value={isEnabled}
                     />
-                  </View>
-                </View>
+                  </View> */}
+                {/* </View> */}
 
-                <View style={styles.row3}>
+                {/* <View style={styles.row3}>
                   <View>
                     <Text style={styles.title2}>Event only for moderators</Text>
                   </View>
@@ -984,7 +998,7 @@ const AddEventScreen = props => {
                       value={isModOnly}
                     />
                   </View>
-                </View>
+                </View> */}
               </View>
 
               <View

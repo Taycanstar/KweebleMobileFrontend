@@ -12,6 +12,7 @@ import {
   Platform,
   Animated,
   RefreshControl,
+  Dimensions,
 } from 'react-native';
 import React, {useState, useRef, useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
@@ -37,19 +38,22 @@ import {
   FacebookLoader,
   InstagramLoader,
 } from 'react-native-easy-content-loader';
+import {BlurView} from '@react-native-community/blur';
 
 const MIN_HEIGHT = Platform.OS === 'ios' ? 90 : 55;
+const MAX_HEIGHT = 300;
+const screenWidth = Dimensions.get('window').width;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
-const MAX_HEIGHT = 250;
+// const MAX_HEIGHT = 250;
 const TITLE_MIN_HEIGHT = 30;
 const TITLE_MAX_HEIGHT = 70;
 const scrollY = new Animated.Value(0);
-
-const headerHeight = scrollY.interpolate({
-  inputRange: [0, MAX_HEIGHT + 10 - MIN_HEIGHT],
-  outputRange: [MAX_HEIGHT, MIN_HEIGHT],
-  extrapolate: 'clamp',
-});
+// const headerHeight = scrollY.interpolate({
+//   inputRange: [0, MAX_HEIGHT + 10 - MIN_HEIGHT],
+//   outputRange: [MAX_HEIGHT, MIN_HEIGHT],
+//   extrapolate: 'clamp',
+// });
 
 const titleHeight = scrollY.interpolate({
   inputRange: [0, MAX_HEIGHT - MIN_HEIGHT],
@@ -74,10 +78,6 @@ const ProfileScreen = props => {
   const navigation = useNavigation();
 
   const [result, setResult] = useState(undefined);
-  const [res, setRes] = useState(undefined);
-  const [isInfoActive, setIsInfoActive] = useState(true);
-  const [isProductsActive, setIsProductsActive] = useState(false);
-  const [isEventsActive, setIsEventsActive] = useState(false);
   const [activeTab, setActiveTab] = useState('info');
   const [products, setProducts] = useState([]);
   const [myProducts, setMyProducts] = useState([]);
@@ -132,13 +132,8 @@ const ProfileScreen = props => {
       }
     };
     loadUsers();
-
-    // const interval = setInterval(() => {
-    //   loadUsers();
-    // }, 3000);
     return () => {
       mounted = false;
-      // clearInterval(interval);
     };
   }, [refresh]);
 
@@ -216,10 +211,6 @@ const ProfileScreen = props => {
     setMyEvents(newEvents);
   }, [events]);
 
-  const progress = useDerivedValue(() => {
-    return result > 185 ? withTiming(1) : withTiming(0);
-  }, [result, scrollY]);
-
   const onBackPress = () => {
     navigation.goBack();
   };
@@ -227,26 +218,6 @@ const ProfileScreen = props => {
   const onEditProfilePress = () => {
     navigation.navigate('EditProfile', {data: data});
   };
-
-  useEffect(() => {
-    scrollY.addListener(({value}) => setResult(value));
-    console.log(scrollY);
-    // scrollY.addListener(({value}) => console.log(value));
-  }, [scrollY]);
-
-  const fadeIn = () => {
-    // Will change fadeAnim value to 1 in 5 seconds
-    Animated.timing(scrollY, {
-      toValue: 1,
-      duration: 5000,
-    }).start();
-  };
-
-  useEffect(() => {
-    if (result > 185) {
-      fadeIn();
-    }
-  }, [scrollY]);
 
   useEffect(() => {
     let mounted = true;
@@ -270,24 +241,6 @@ const ProfileScreen = props => {
     };
   }, [users, refresh]);
 
-  const onInfoPress = () => {
-    setIsInfoActive(true);
-    setIsProductsActive(false);
-    setIsEventsActive(false);
-  };
-
-  const onProductsPress = () => {
-    setIsInfoActive(false);
-    setIsProductsActive(true);
-    setIsEventsActive(false);
-  };
-
-  const onEventsPress = () => {
-    setIsInfoActive(false);
-    setIsProductsActive(false);
-    setIsEventsActive(true);
-  };
-
   useEffect(() => {
     if (data?.name?.length === 14) {
       setFont(50);
@@ -299,6 +252,67 @@ const ProfileScreen = props => {
       setFont(35);
     }
   }, []);
+
+  const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
+  const blurOpacity = scrollY.interpolate({
+    inputRange: [0, 200],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, MAX_HEIGHT - MIN_HEIGHT],
+    outputRange: [MAX_HEIGHT, MIN_HEIGHT],
+    extrapolate: 'clamp',
+  });
+
+  const imageScale = scrollY.interpolate({
+    inputRange: [-MAX_HEIGHT, 0],
+    outputRange: [2, 1], // Scale up by 2 when scrolled down by MAX_HEIGHT
+    extrapolateLeft: 'extend', // Allow extrapolation when scrolled down
+    extrapolateRight: 'clamp', // Don't extrapolate when scrolled up
+  });
+  const [imageAspectRatio, setImageAspectRatio] = useState(1);
+
+  const [maxWidth, setMaxWidth] = useState(0);
+
+  useEffect(() => {
+    // Get the screen width
+    const screenWidth = Dimensions.get('window').width;
+
+    // Set the max width to a slightly larger value than the screen width
+    setMaxWidth(screenWidth + 100);
+  }, []);
+
+  // Inside your component, after fetching the image source, calculate the aspect ratio
+  useEffect(() => {
+    if (data?.photo) {
+      Image.getSize(data.photo, (width, height) => {
+        const aspectRatio = width / height;
+        setImageAspectRatio(aspectRatio);
+      });
+    }
+  }, [data?.photo]);
+
+  const [textColor, setTextColor] = useState('white');
+
+  const [scale, setScale] = useState(1);
+
+  const [imageWidth, setImageWidth] = useState(SCREEN_WIDTH * 1.15 * scale);
+
+  const handleScroll = event => {
+    const {contentOffset} = event.nativeEvent;
+
+    // Update the scrollY value using setValue
+    scrollY.setValue(contentOffset.y);
+
+    // Determine the new width based on the scroll position
+    const newWidth = contentOffset.y >= 0 ? SCREEN_WIDTH : SCREEN_WIDTH * 2.15;
+    setImageWidth(newWidth);
+
+    const newColor = scrollY <= 150 ? 'white' : 'rgba(52,52,52,0)';
+    setTextColor(newColor);
+  };
 
   return (
     // <ScrollView style={styles.container}>
@@ -315,21 +329,20 @@ const ProfileScreen = props => {
                 paddingHorizontal: 10,
                 paddingTop: 50,
                 paddingBottom: 5,
-                backgroundColor: scrollY,
+                backgroundColor: 'rgba(0, 0, 0, 0)',
                 flexDirection: 'row',
                 zIndex: 5,
 
                 alignItems: 'center',
-                // position: 'absolute',
-                // justifyContent: 'space-between',
               },
             ]}>
             <Pressable onPress={onBackPress} style={styles.backarrow}>
               <MaterialIcons name="arrow-back-ios" size={17} color="white" />
             </Pressable>
+
             <Text
               style={{
-                color: result < 185 ? 'white' : 'rgba(52, 52, 52, 0)',
+                color: textColor,
                 fontSize: 24,
                 fontWeight: 'bold',
                 textAlign: 'left',
@@ -340,10 +353,6 @@ const ProfileScreen = props => {
               }}>
               {data?.username}
             </Text>
-
-            {/* <View>
-          <Text>{'                '}</Text>
-        </View> */}
           </Animated.View>
           <Animated.View
             style={{
@@ -366,12 +375,7 @@ const ProfileScreen = props => {
               // style={{height: 350, overflow: 'visible'}}
               style={{flex: 1, overflow: 'visible'}}
               scrollEventThrottle={1}
-              onScroll={Animated.event(
-                [{nativeEvent: {contentOffset: {y: scrollY}}}],
-                {
-                  useNativeDriver: false,
-                },
-              )}>
+              onScroll={handleScroll}>
               <Animated.Image
                 resizeMode="cover"
                 source={
@@ -379,27 +383,26 @@ const ProfileScreen = props => {
                     ? {uri: data?.photo}
                     : require('../../../assets/images/hx.png')
                 }
-                style={[
-                  styles.max,
-                  {
-                    transform: [
-                      {
-                        translateY: scrollY.interpolate({
-                          inputRange: [-1000, 0],
-                          outputRange: [-100, 0],
-                          extrapolate: 'clamp',
-                        }),
-                      },
-                      {
-                        scale: scrollY.interpolate({
-                          inputRange: [-3000, 0],
-                          outputRange: [20, 1],
-                          extrapolate: 'clamp',
-                        }),
-                      },
-                    ],
-                  },
-                ]}
+                style={{
+                  height: '100%',
+                  width: imageWidth,
+                  aspectRatio: imageAspectRatio,
+                  transform: [{scale: imageScale}],
+                }}
+              />
+
+              <AnimatedBlurView
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  height: '100%',
+                  width: '100%',
+                  opacity: blurOpacity,
+                }}
+                blurType="transparent"
+                blurAmount={10}
+                blurRadius={10}
+                overlayColor={'rgba(255, 255, 255, 0.3)'}
               />
             </ScrollView>
           </Animated.View>
@@ -492,7 +495,7 @@ const ProfileScreen = props => {
                   }}>
                   <Text style={{fontWeight: '700', fontSize: 16}}>Events</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={() => setActiveTab('products')}
                   style={{
                     borderBottomWidth: 3,
@@ -503,7 +506,7 @@ const ProfileScreen = props => {
                   <Text style={{fontWeight: '700', fontSize: 16}}>
                     Products
                   </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
               <View>
                 {(() => {
@@ -837,12 +840,9 @@ const styles = StyleSheet.create({
   },
   max: {
     width: '100%',
-    // minHeight: 280,
-    // maxHeight: 350,
-
-    height: 350,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+    height: 300,
+    // flexDirection: 'column',
+    // justifyContent: 'space-between',
   },
   container: {
     backgroundColor: Colors.white,

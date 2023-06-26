@@ -12,6 +12,7 @@ import {
   Animated,
   RefreshControl,
   Modal,
+  Dimensions,
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useState, useRef, useEffect} from 'react';
@@ -42,21 +43,22 @@ import {
 } from 'react-native-easy-content-loader';
 import ECard from '../../components/ECard';
 import SearchCard from '../../components/SearchCard/';
+import {BlurView} from '@react-native-community/blur';
 
 const MIN_HEIGHT = Platform.OS === 'ios' ? 90 : 55;
+const MAX_HEIGHT = 300;
+const screenWidth = Dimensions.get('window').width;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+// const MAX_HEIGHT = 250;
+const TITLE_MIN_HEIGHT = 30;
+const TITLE_MAX_HEIGHT = 70;
+
 // const MAX_HEIGHT = 250;
 // const TITLE_MIN_HEIGHT = 30;
 // const TITLE_MAX_HEIGHT = 70;
-const MAX_HEIGHT = 250;
-const TITLE_MIN_HEIGHT = 30;
-const TITLE_MAX_HEIGHT = 70;
-const scrollY = new Animated.Value(0);
 
-const headerHeight = scrollY.interpolate({
-  inputRange: [0, MAX_HEIGHT + 10 - MIN_HEIGHT],
-  outputRange: [MAX_HEIGHT, MIN_HEIGHT],
-  extrapolate: 'clamp',
-});
+const scrollY = new Animated.Value(0);
 
 const headerTitle = scrollY.interpolate({
   inputRange: [
@@ -240,27 +242,6 @@ const ScopeScreen = props => {
     navigation.goBack();
   };
 
-  useEffect(() => {
-    scrollY.addListener(({value}) => setResult(value));
-    // console.log(scrollY);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrollY]);
-
-  const fadeIn = () => {
-    // Will change fadeAnim value to 1 in 5 seconds
-    Animated.timing(scrollY, {
-      toValue: 10,
-      duration: 5000,
-    }).start();
-  };
-
-  useEffect(() => {
-    if (result > 185) {
-      fadeIn();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrollY]);
-
   let today = new Date();
   let tomorrow = new Date();
   let yesterday = new Date();
@@ -408,13 +389,6 @@ const ScopeScreen = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
-  // useEffect(() => {
-  //   data.members.map((memb, i) => {
-  //     console.log(memb);
-  //   });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
   useEffect(() => {
     const ref = navigation.addListener('focus', () => {
       // The screen is focused
@@ -449,6 +423,70 @@ const ScopeScreen = props => {
     }
   };
 
+  const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
+  const blurOpacity = scrollY.interpolate({
+    inputRange: [0, 200],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, MAX_HEIGHT - MIN_HEIGHT],
+    outputRange: [MAX_HEIGHT, MIN_HEIGHT],
+    extrapolate: 'clamp',
+  });
+
+  const imageScale = scrollY.interpolate({
+    inputRange: [-MAX_HEIGHT, 0],
+    outputRange: [2, 1], // Scale up by 2 when scrolled down by MAX_HEIGHT
+    extrapolateLeft: 'extend', // Allow extrapolation when scrolled down
+    extrapolateRight: 'clamp', // Don't extrapolate when scrolled up
+  });
+  const [imageAspectRatio, setImageAspectRatio] = useState(1);
+
+  const [maxWidth, setMaxWidth] = useState(0);
+
+  useEffect(() => {
+    // Get the screen width
+    const screenWidth = Dimensions.get('window').width;
+
+    // Set the max width to a slightly larger value than the screen width
+    setMaxWidth(screenWidth + 100);
+  }, []);
+
+  // Inside your component, after fetching the image source, calculate the aspect ratio
+  useEffect(() => {
+    if (currScope?.photo) {
+      Image.getSize(currScope?.photo, (width, height) => {
+        const aspectRatio = width / height;
+        setImageAspectRatio(aspectRatio);
+      });
+    }
+  }, [currScope?.photo]);
+
+  const [textColor, setTextColor] = useState('white');
+
+  const [scale, setScale] = useState(1);
+
+  const [imageWidth, setImageWidth] = useState(SCREEN_WIDTH * 1.15 * scale);
+
+  const handleScroll = event => {
+    // const {contentOffset} = event.nativeEvent;
+    // const scrollY = contentOffset.y;
+
+    const {contentOffset} = event.nativeEvent;
+
+    // Update the scrollY value using setValue
+    scrollY.setValue(contentOffset.y);
+
+    // Determine the new width based on the scroll position
+    const newWidth = contentOffset.y >= 0 ? SCREEN_WIDTH : SCREEN_WIDTH * 2.15;
+    setImageWidth(newWidth);
+
+    const newColor = scrollY <= 150 ? 'white' : 'rgba(52,52,52,0';
+    setTextColor(newColor);
+  };
+
   return (
     // <ScrollView style={styles.container}>
     <View style={{flex: 1, backgroundColor: 'white'}}>
@@ -464,7 +502,7 @@ const ScopeScreen = props => {
                 paddingHorizontal: 10,
                 paddingTop: 50,
                 paddingBottom: 5,
-                backgroundColor: scrollY,
+                backgroundColor: 'rgba(52,52,52,52,0)',
                 flexDirection: 'row',
                 zIndex: 5,
                 alignItems: 'center',
@@ -498,12 +536,7 @@ const ScopeScreen = props => {
             <ScrollView
               style={{height: 350, overflow: 'visible', flex: 1}}
               scrollEventThrottle={1}
-              onScroll={Animated.event(
-                [{nativeEvent: {contentOffset: {y: scrollY}}}],
-                {
-                  useNativeDriver: false,
-                },
-              )}>
+              onScroll={handleScroll}>
               <Animated.Image
                 resizeMode="cover"
                 source={
@@ -511,27 +544,24 @@ const ScopeScreen = props => {
                     ? {uri: currScope?.photo}
                     : require('../../../assets/images/primary.png')
                 }
-                style={[
-                  styles.max,
-                  {
-                    transform: [
-                      {
-                        translateY: scrollY.interpolate({
-                          inputRange: [-1000, 0],
-                          outputRange: [-100, 0],
-                          extrapolate: 'clamp',
-                        }),
-                      },
-                      {
-                        scale: scrollY.interpolate({
-                          inputRange: [-3000, 0],
-                          outputRange: [20, 1],
-                          extrapolate: 'clamp',
-                        }),
-                      },
-                    ],
-                  },
-                ]}
+                style={{
+                  width: imageWidth,
+                  aspectRatio: imageAspectRatio,
+                  transform: [{scale: imageScale}],
+                }}
+              />
+              <AnimatedBlurView
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  height: '100%',
+                  width: '100%',
+                  opacity: blurOpacity,
+                }}
+                blurType="light"
+                blurAmount={10}
+                blurRadius={10}
+                overlayColor={'rgba(255, 255, 255, 0.3)'}
               />
             </ScrollView>
           </Animated.View>
@@ -546,7 +576,7 @@ const ScopeScreen = props => {
             }}>
             <Text
               style={{
-                color: result > 207 ? 'white' : 'rgba(52, 52, 52, 0)',
+                color: textColor,
 
                 fontSize: 20,
                 fontWeight: 'bold',
@@ -603,7 +633,7 @@ const ScopeScreen = props => {
                   }}>
                   <Text style={{fontWeight: '600', fontSize: 16}}>Events</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={() => {
                     setActiveTab('products');
                     // pullLoad();
@@ -618,7 +648,7 @@ const ScopeScreen = props => {
                   <Text style={{fontWeight: '600', fontSize: 16}}>
                     Products
                   </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <TouchableOpacity
                   onPress={() => {

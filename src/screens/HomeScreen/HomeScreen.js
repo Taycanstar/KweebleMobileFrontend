@@ -229,11 +229,6 @@ const Home = ({navigation, event, props}) => {
     return item.members.indexOf(data._id) >= 0;
   });
 
-  // useEffect(() => {
-
-  //   setMyScopes(myScopes);
-  // }, [data._id, refresh, scopes]);
-
   useEffect(() => {
     let mounted = true;
 
@@ -247,9 +242,6 @@ const Home = ({navigation, event, props}) => {
 
     loadDimi();
 
-    // const interval = setInterval(() => {
-    //   loadDimi();
-    // }, 3000);
     return () => {
       mounted = false;
       // clearInterval(interval);
@@ -258,7 +250,8 @@ const Home = ({navigation, event, props}) => {
 
   useEffect(() => {
     const fev = events.filter(
-      e => e.datetime > yesterday.getTime() && e.modOnly === false,
+      //edited for customization purposes
+      e => e.datetime <= yesterday.getTime() && e.modOnly === false,
     );
 
     const todayE = fev.filter(
@@ -271,11 +264,6 @@ const Home = ({navigation, event, props}) => {
     });
 
     const mySE = myScopeEvents?.flat(1);
-    // const sex = mySE.sort(function (a, b) {
-    //   const dateOfA = new Date(`${a.year}-${a.month}-${a.day}`);
-    //   const dateOfB = new Date(`${b.year}-${b.month}-${b.day}`);
-    //   return dateOfA > dateOfB;
-    // });
 
     const sex = mySE.sort(
       (a, b) =>
@@ -295,11 +283,6 @@ const Home = ({navigation, event, props}) => {
       });
 
       const siv = si?.flat(1);
-      // const sex2 = sev.sort(function (a, b) {
-      //   const dateOfA = new Date(`${a.year}-${a.month}-${a.day}`);
-      //   const dateOfB = new Date(`${b.year}-${b.month}-${b.day}`);
-      //   return dateOfA > dateOfB;
-      // });
 
       const sex2 = sev.sort(
         (a, b) =>
@@ -339,30 +322,6 @@ const Home = ({navigation, event, props}) => {
   const onMapPress = () => {
     setForYou(false);
   };
-
-  // useEffect(() => {
-  //   let mounted;
-
-  //   const onSelPress = scope => {
-  //     const evnts = events
-  //       .filter(e => e.scope === scope._id && e.datetime > yesterday.getTime())
-  //       .sort(function (a, b) {
-  //         const dateOfA = new Date(`${a.year}-${a.month}-${a.day}`);
-  //         const dateOfB = new Date(`${b.year}-${b.month}-${b.day}`);
-  //         return dateOfA > dateOfB;
-  //       });
-
-  //     if (mounted) {
-  //       setSelEvents(evnts);
-  //       setIsScopeSelected(true);
-  //       setIsModalVisible(false);
-  //       setCatherine(`${scope.name}`);
-  //     }
-  //   };
-
-  //   onSelPress();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [refresh]);
 
   const onSelPress = scope => {
     const evnts = events.filter(
