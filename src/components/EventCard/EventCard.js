@@ -50,6 +50,7 @@ const EventCard = ({
   const [users, setUsers] = useState([]);
   const [me, setMe] = useState('');
   const [reportOption, setReportOption] = useState('');
+  const [isMoreVisible, setIsMoreVisible] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -350,18 +351,16 @@ const EventCard = ({
 
             alignItems: 'center',
           }}>
-          {data._id !== event.user ? (
-            <TouchableOpacity
-              onPress={() => {
-                changeModalVisible(!isModalVisible);
-              }}>
-              <MaterialCommunityIcons
-                name="dots-horizontal"
-                size={19}
-                color="gray"
-              />
-            </TouchableOpacity>
-          ) : null}
+          <TouchableOpacity
+            onPress={() => {
+              setIsMoreVisible(!isMoreVisible);
+            }}>
+            <MaterialCommunityIcons
+              name="dots-horizontal"
+              size={19}
+              color="gray"
+            />
+          </TouchableOpacity>
 
           <View></View>
           <View>
@@ -529,31 +528,9 @@ const EventCard = ({
                 </View>
               </TouchableOpacity>
             ) : null}
-            {/* <TouchableOpacity
-              onPress={() => setIsModalVisible(false)}
-              style={{
-                zIndex: 201,
-                paddingVertical: 11,
-                paddingHorizontal: 16,
-                // borderBottomWidth: 1,
-                // borderBottomColor: 'lightgray',
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                }}>
-                <Text style={{fontSize: 14, fontWeight: '400', color: 'black'}}>
-                  Close
-                </Text>
-                <FontAwesome name="times-circle" size={16} color="black" />
-              </View>
-            </TouchableOpacity> */}
           </View>
         </TouchableWithoutFeedback>
       ) : null}
-
       <Modal
         animationType={'fade'}
         transparent={true}
@@ -880,7 +857,6 @@ const EventCard = ({
           </TouchableOpacity>
         </View>
       </Modal>
-
       <Modal
         animationType={'fade'}
         transparent={true}
@@ -996,6 +972,54 @@ const EventCard = ({
           </TouchableOpacity>
         </View>
       </Modal>
+
+      <TouchableOpacity onPress={() => setIsMoreVisible(false)}>
+        <Modal
+          animationType={'slide'}
+          transparent={true}
+          visible={isMoreVisible}
+          onRequestClose={() => setIsMoreVisible(false)}>
+          <TouchableOpacity
+            onPress={() => setIsMoreVisible(false)}
+            style={{
+              // flex: 1,
+              height: '100%',
+              // paddingTop: 60,
+              width: '100%',
+              backgroundColor: '#000000AA',
+              // justifyContent: 'flex-start',
+            }}>
+            {/* <TouchableWithoutFeedback> */}
+            <View
+              style={{
+                marginTop: 580,
+                backgroundColor: '#fff',
+                width: '100%',
+                borderTopRightRadius: 20,
+                borderTopLeftRadius: 20,
+                paddingHorizontal: 15,
+                height: '100%',
+              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setIsMoreVisible(false);
+                }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: 15,
+                }}>
+                <Text style={{fontSize: 18, fontWeight: '400'}}>
+                  Add to calendar
+                </Text>
+                <Feather name="calendar" size={20} color="black" />
+              </TouchableOpacity>
+            </View>
+            {/* </TouchableWithoutFeedback> */}
+          </TouchableOpacity>
+        </Modal>
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 };

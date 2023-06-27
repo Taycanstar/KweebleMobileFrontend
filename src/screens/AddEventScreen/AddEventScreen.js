@@ -95,7 +95,6 @@ const AddEventScreen = props => {
   const [notiText, setNotiText] = useState('');
   const [notificationDescription, setNotificationDescription] = useState('');
   const [eventLink, setEventLink] = useState('');
-  const [notificationId, setNotificationId] = useState('');
 
   const changeScopeVisible = bool => {
     setIsScopeVisible(bool);
@@ -142,11 +141,11 @@ const AddEventScreen = props => {
   const [data, setData] = useState({
     name: '',
     location: '',
-    startDay: `${monthName} ${date.getDate()}, ${date.getFullYear()}`,
-    startTime: formatAMPM(date),
-    endDay: formatAMPM(date2),
-    endTime: formatAMPM(date2),
-    datetime: date.getTime(),
+    startDay: `${monthName} ${eventDate.getDate()}, ${eventDate.getFullYear()}`,
+    startTime: formatAMPM(eventDate),
+    endDay: formatAMPM(eventEndDate),
+    endTime: formatAMPM(eventEndDate),
+    datetime: eventDate.getTime(),
     image: '',
     latitude: '',
     longitude: '',
@@ -222,8 +221,12 @@ const AddEventScreen = props => {
     setIsLoading(false);
     setIsMediaLoading(false);
     setIsPhotoLoading(false);
-
-    // dropdownRef.current.reset();
+    setEventDate(new Date());
+    setEventEndDate(new Date());
+    setEventLink('');
+    setNotiText('');
+    setNotificationDescription('');
+    setNotificationTime(new Date());
   };
 
   const onCancelPress = () => {
@@ -349,7 +352,7 @@ const AddEventScreen = props => {
           endDate: eventEndDate,
           notiText,
           notificationDescription,
-          notificationId,
+
           link: eventLink,
         },
         {
@@ -445,34 +448,28 @@ const AddEventScreen = props => {
     let mounted = true;
     const loadScopes = async () => {
       try {
-        const {data} = await axios.get('https://kweeble.herokuapp.com/scopes/');
+        const {data3} = await axios.get(
+          'https://kweeble.herokuapp.com/scopes/',
+        );
         if (mounted) {
-          setScopes(data);
+          setScopes(data3);
         }
       } catch (error) {
         console.log(error);
       }
     };
     loadScopes();
-    // const interval = setInterval(() => {
-    //   loadScopes();
-    // }, 2000);
+
     return () => {
       mounted = false;
-
-      // clearInterval(interval);
     };
-  }, [refresh]);
-
-  // useEffect(() => {
-  //   const my = scopes.filter(sc => sc.name === selectedScope);
-  //   setScope(my[0]);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [selectedScope, refresh]);
+  }, []);
 
   const myScopes = scopes.filter(item => {
     return item.members.indexOf(data2._id) >= 0;
   });
+
+  console.log(scopes, 'scopes');
 
   useEffect(() => {
     if (error) {
@@ -482,19 +479,11 @@ const AddEventScreen = props => {
     }
   }, [error]);
 
-  const [markers, setMarkers] = useState([]);
   const [marker, setMarker] = useState('');
 
   const mapRef = useRef();
   // console.log(markers);
   const [region, setRegion] = useState({
-    latitude: 27.713011386872324,
-    longitude: -82.68764074523352,
-    latitudeDelta: 0.000005,
-    longitudeDelta: 0.0055,
-  });
-
-  const [defRegion, setDefRegion] = useState({
     latitude: 27.713011386872324,
     longitude: -82.68764074523352,
     latitudeDelta: 0.000005,
@@ -725,7 +714,7 @@ const AddEventScreen = props => {
                     paddingTop: 5,
                     paddingBottom: 10,
                     borderBottomColor: Colors.subtleGray,
-                    // borderBottomWidth: 1,
+                    borderBottomWidth: 1,
                   }}>
                   <TextInput
                     multiline={true}
@@ -737,6 +726,24 @@ const AddEventScreen = props => {
                     }
                     autoCapitalize="none"
                     value={description}
+                  />
+                </View>
+
+                <View
+                  style={{
+                    paddingTop: 5,
+                    paddingBottom: 10,
+                    borderBottomColor: Colors.subtleGray,
+                    // borderBottomWidth: 1,
+                  }}>
+                  <TextInput
+                    multiline={true}
+                    style={{fontWeight: '400'}}
+                    placeholder="URL/Link"
+                    placeholderTextColor={Colors.lightgray}
+                    onChangeText={newText => setEventLink(newText)}
+                    autoCapitalize="none"
+                    value={eventLink}
                   />
                 </View>
               </View>
@@ -770,24 +777,31 @@ const AddEventScreen = props => {
                       modal
                       open={open}
                       mode="date"
-                      date={date}
-                      onConfirm={date => {
+                      date={eventDate}
+                      onConfirm={datex => {
                         setOpen(false);
-                        setDate(date);
+                        setDate(datex);
                         // setMonth(month);
+                        let newDate = new Date(
+                          datex.setHours(
+                            eventDate.getHours(),
+                            eventDate.getMinutes(),
+                          ),
+                        );
+                        setEventDate(newDate);
 
                         setData({
                           ...data,
-                          month: date.getMonth() + 1,
-                          day: date.getDate(),
-                          year: date.getFullYear(),
-                          datetime: date.getTime(),
+                          month: datex.getMonth() + 1,
+                          day: datex.getDate(),
+                          year: datex.getFullYear(),
+                          datetime: datex.getTime(),
                         });
                       }}
                       onCancel={() => {
                         setOpen(false);
                       }}
-                      onDateChange={setDate}
+                      onDateChange={setEventDate}
                     />
                     <View style={styles.dateChangeContainer}>
                       <Pressable onPress={onOpen2Press}>
@@ -814,38 +828,51 @@ const AddEventScreen = props => {
                       onCancel={() => {
                         setOpen2(false);
                       }}
-                      onConfirm={date => {
+                      onConfirm={time => {
                         setOpen2(false);
-                        setDate(date);
+                        let newDate = new Date(
+                          eventDate.setHours(
+                            time.getHours(),
+                            time.getMinutes(),
+                          ),
+                        );
+                        setEventDate(newDate);
                         setData({
                           ...data,
-                          startTime: formatAMPM(date),
+                          startTime: formatAMPM(time),
                         });
                       }}
                       modal
                       open={open2}
                       mode="time"
-                      date={date}
-                      onDateChange={setDate}
+                      date={eventDate}
+                      onDateChange={setEventDate}
                       is24Hour={false}
                     />
                     <DatePicker
                       onCancel={() => {
                         setOpen3(false);
                       }}
-                      onConfirm={dateDos => {
+                      onConfirm={timef => {
                         setOpen3(false);
-                        setDate2(dateDos);
+                        setDate2(timef);
+                        let newDate = new Date(
+                          eventDate.setHours(
+                            timef.getHours(),
+                            timef.getMinutes(),
+                          ),
+                        );
+                        setEventEndDate(newDate);
                         setData({
                           ...data,
-                          endTime: formatAMPM(dateDos),
+                          endTime: formatAMPM(timef),
                         });
                       }}
                       modal
                       open={open3}
                       mode="time"
-                      date={date2}
-                      onDateChange={setDate2}
+                      date={eventEndDate}
+                      onDateChange={setEventEndDate}
                       is24Hour={false}
                     />
                   </View>
