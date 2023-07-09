@@ -52,21 +52,11 @@ const AddEventScreen = props => {
   const dispatch = useDispatch();
   const [date, setDate] = useState(new Date());
   const [date2, setDate2] = useState(new Date());
-  // const [month, setMonth] = useState('');
-  // const [month2, setMonth2] = useState('');
   const [scopes, setScopes] = useState([]);
   const [selectedScope, setSelectedScope] = useState('');
-  // const [scope, setScope] = useState('');
   const [open, setOpen] = useState(false);
-  const [mineScopes, setMineScopes] = useState([]);
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
-  const [open4, setOpen4] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [hour, setHour] = useState('');
-  const [hour2, setHour2] = useState('');
-  const [minute, setMinute] = useState('');
-  const [minute2, setMinute2] = useState('');
   const [icon, setIcon] = useState('Red');
   const [selectedIcon, setSelectedIcon] = useState('');
   const [isEnabled, setIsEnabled] = useState(false);
@@ -80,6 +70,7 @@ const AddEventScreen = props => {
   const [isRepeatVisible, setIsRepeatVisible] = useState(false);
   const [isLocVisible, setIsLocVisible] = useState(false);
   const [isIconVisible, setIsIconVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [minutes, setMinutes] = useState('00');
@@ -120,16 +111,8 @@ const AddEventScreen = props => {
     }, 1000);
   };
 
-  const closeModal = (bool, info) => {
-    changeModalVisible(bool);
-  };
-
   const closeLoc = (bool, info) => {
     changeLocVisible(bool);
-  };
-
-  const changeIconVisible = bool => {
-    setIsModalVisible(bool);
   };
 
   const closeIcon = (bool, info) => {
@@ -448,11 +431,9 @@ const AddEventScreen = props => {
     let mounted = true;
     const loadScopes = async () => {
       try {
-        const {data3} = await axios.get(
-          'https://kweeble.herokuapp.com/scopes/',
-        );
+        const {data} = await axios.get('https://kweeble.herokuapp.com/scopes/');
         if (mounted) {
-          setScopes(data3);
+          setScopes(data);
         }
       } catch (error) {
         console.log(error);
@@ -463,13 +444,11 @@ const AddEventScreen = props => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [refresh, scopes]);
 
-  const myScopes = scopes.filter(item => {
+  const myScopes = scopes?.filter(item => {
     return item.members.indexOf(data2._id) >= 0;
   });
-
-  console.log(scopes, 'scopes');
 
   useEffect(() => {
     if (error) {
@@ -561,6 +540,8 @@ const AddEventScreen = props => {
       setIsMediaLoading(false);
     }
   };
+
+  console.log(scopes, 'scopes fetched');
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>

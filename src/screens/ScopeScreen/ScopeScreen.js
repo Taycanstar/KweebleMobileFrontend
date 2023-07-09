@@ -861,6 +861,11 @@ const ScopeScreen = props => {
                                             image={ev.image}
                                             id={ev._id}
                                             user={ev.user}
+                                            // scp={sc}
+                                            date={ev.date}
+                                            endDate={ev.endDate}
+                                            link={ev.link}
+                                            description={ev.description}
                                           />
                                         </TouchableOpacity>
                                       </View>

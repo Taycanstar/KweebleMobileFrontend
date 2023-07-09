@@ -1101,6 +1101,11 @@ const OtherUserProfile = props => {
                                     image={event.image}
                                     user={event.user}
                                     id={event._id}
+                                    // scp={sc}
+                                    date={event.date}
+                                    endDate={event.endDate}
+                                    link={event.link}
+                                    description={event.description}
                                   />
                                 </TouchableOpacity>
                               );

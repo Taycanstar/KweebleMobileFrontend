@@ -6,6 +6,7 @@
  * @flow strict-local
  */
 import 'react-native-gesture-handler';
+import {EventProvider} from './src/contexts/EventContext';
 
 import {LogBox} from 'react-native';
 
@@ -37,9 +38,9 @@ const App = () => {
   return (
     <GestureHandlerRootView style={{flex: 1, width: '100%'}}>
       <Provider store={store}>
-        {/* <SafeAreaView style={styles.root}> */}
-        <Navigation />
-        {/* </SafeAreaView> */}
+        <EventProvider>
+          <Navigation />
+        </EventProvider>
       </Provider>
     </GestureHandlerRootView>
   );

@@ -6985,6 +6985,16 @@ react-is@^18.0.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.1.0.tgz"
   integrity sha512-Fl7FuabXsJnV5Q1qIOQwx/sagGF18kogb4gpfcG4gjLBWO0WDiiz1ko/ExayuxE7InyQkBLkxRFG5oxY6Uu3Kg==
 
+react-native-add-calendar-event@^4.2.2:
+  version "4.2.2"
+  resolved "https://registry.npmjs.org/react-native-add-calendar-event/-/react-native-add-calendar-event-4.2.2.tgz"
+  integrity sha512-y8Us+DDvSZL3ndWJhwKisLG3gml9Ju4FoHQ2rNQyysa9vPRZwfNXsk1tRlSjJ7ZIrxWUwOrVbXe98PN44N+qsQ==
+
+react-native-calendar-events@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.npmjs.org/react-native-calendar-events/-/react-native-calendar-events-2.2.0.tgz"
+  integrity sha512-tNUbhT6Ief0JM4OQzQAaz1ri0+MCcAoHptBcEXCz2g7q3A05pg62PR2Dio4F9t2fCAD7Y2+QggdY1ycAsF3Tsg==
+
 react-native-codegen@^0.0.17:
   version "0.0.17"
   resolved "https://registry.npmjs.org/react-native-codegen/-/react-native-codegen-0.0.17.tgz"
@@ -7228,7 +7238,7 @@ react-native-vector-icons@*, react-native-vector-icons@^9.1.0, react-native-vect
     prop-types "^15.7.2"
     yargs "^16.1.1"
 
-react-native@*, "react-native@^0.0.0-0 || 0.60 - 0.68 || 1000.0.0", "react-native@>= 0.51", "react-native@>= 0.59", react-native@>=0.23.1, react-native@>=0.29, react-native@>=0.40.0, react-native@>=0.42.0, react-native@>=0.55, react-native@>=0.57, react-native@>=0.59, react-native@>=0.61.0, react-native@>0.57.0, react-native@0.68.2:
+react-native@*, "react-native@^0.0.0-0 || 0.60 - 0.68 || 1000.0.0", "react-native@>= 0.51", "react-native@>= 0.59", react-native@>=0.23.1, react-native@>=0.29, react-native@>=0.40.0, react-native@>=0.42.0, react-native@>=0.55, react-native@>=0.57, react-native@>=0.59, react-native@>=0.60.0, react-native@>=0.61.0, react-native@>0.57.0, react-native@0.68.2:
   version "0.68.2"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.68.2.tgz"
   integrity sha512-qNMz+mdIirCEmlrhapAtAG+SWVx6MAiSfCbFNhfHqiqu1xw1OKXdzIrjaBEPihRC2pcORCoCHduHGQe/Pz9Yuw==

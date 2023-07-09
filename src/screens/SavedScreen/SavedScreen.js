@@ -38,6 +38,7 @@ import ScopesPopup from '../../components/ScopesPopup';
 import EventCard from '../../components/EventCard';
 import ProductCard from '../../components/ProductCard';
 const deviceHeight = Dimensions.get('window').height;
+import {useEventContext} from '../../contexts/EventContext';
 
 const SavedScreen = ({navigation, event, route}) => {
   const data = useSelector(state => state.Reducers.userData);
@@ -53,6 +54,8 @@ const SavedScreen = ({navigation, event, route}) => {
   const [users, setUsers] = useState([]);
   const [me, setMe] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const {savedEvents, fetchSavedEvents, addSavedEvent, removeSavedEvent} =
+    useEventContext();
 
   const changeModalVisible = bool => {
     setIsModalVisible(bool);
@@ -70,15 +73,16 @@ const SavedScreen = ({navigation, event, route}) => {
     }, 1000);
   };
 
-  const navigation2 = useNavigation();
-
   useEffect(() => {
     let mounted = true;
     const loadEvents = async () => {
       try {
         const {data} = await axios.get('https://kweeble.herokuapp.com/events/');
         if (mounted) {
-          setEvents(data);
+          const savedEventsData = data.filter(evt =>
+            savedEvents.includes(evt._id),
+          );
+          setEvents(savedEventsData);
         }
       } catch (error) {
         console.log(error);
@@ -92,28 +96,24 @@ const SavedScreen = ({navigation, event, route}) => {
       mounted = false;
       clearInterval(interval);
     };
-  }, [refresh, events]);
+  }, [refresh, events, savedEvents]);
 
   useEffect(() => {
     let mounted = true;
     const loadEvents = async () => {
-      setIsLoading(true);
+      // setIsLoading(true);
       try {
         const {data} = await axios.get('https://kweeble.herokuapp.com/events/');
         if (mounted) {
-          setEvents(data);
         }
       } catch (error) {
         console.log(error);
       }
     };
     loadEvents();
-    const interval = setInterval(() => {
-      setIsLoading(false);
-    }, 2000);
+
     return () => {
       mounted = false;
-      clearInterval(interval);
     };
   }, []);
 
@@ -149,34 +149,34 @@ const SavedScreen = ({navigation, event, route}) => {
 
   const [filteredEvents, setFilteredEvents] = useState([]);
 
-  useEffect(() => {
-    let mounted = true;
-    const filterEvents = () => {
-      if (mounted) {
-        const fev = events.filter(e => e.datetime > yesterday.getTime());
+  // useEffect(() => {
+  //   let mounted = true;
+  //   const filterEvents = () => {
+  //     if (mounted) {
+  //       const fev = events.filter(e => e.datetime > yesterday.getTime());
 
-        //maybe add for each
-        const mySavedEvents = data.savedEvents.map(e => {
-          return fev.filter(ev => e === ev._id);
-        });
+  //       //maybe add for each
+  //       const mySavedEvents = data.savedEvents.map(e => {
+  //         return fev.filter(ev => e === ev._id);
+  //       });
 
-        const mySE = mySavedEvents.flat(1);
-        // console.log(mySE);
-        setFilteredEvents(mySE);
-      }
-    };
+  //       const mySE = mySavedEvents.flat(1);
+  //       // console.log(mySE);
+  //       setFilteredEvents(mySE);
+  //     }
+  //   };
 
-    filterEvents();
-    const interval = setInterval(() => {
-      filterEvents();
-    }, 2000);
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
+  //   filterEvents();
+  //   const interval = setInterval(() => {
+  //     filterEvents();
+  //   }, 2000);
+  //   return () => {
+  //     mounted = false;
+  //     clearInterval(interval);
+  //   };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, events]);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [refresh, events]);
 
   useEffect(() => {
     let mounted = true;
@@ -201,68 +201,68 @@ const SavedScreen = ({navigation, event, route}) => {
     };
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
+  // useEffect(() => {
+  //   let mounted = true;
 
-    const loadDimi = async () => {
-      if (mounted) {
-        const y = users.filter(u => u._id === data._id)[0];
-        setMe(y);
-      }
-    };
+  //   const loadDimi = async () => {
+  //     if (mounted) {
+  //       const y = users.filter(u => u._id === data._id)[0];
+  //       setMe(y);
+  //     }
+  //   };
 
-    loadDimi();
+  //   loadDimi();
 
-    const interval = setInterval(() => {
-      //   loadDimi();
-    }, 3000);
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, [data._id, users]);
+  //   const interval = setInterval(() => {
+  //     //   loadDimi();
+  //   }, 3000);
+  //   return () => {
+  //     mounted = false;
+  //     clearInterval(interval);
+  //   };
+  // }, [data._id, users]);
 
-  useEffect(() => {
-    //maybe add for each
-    const mySavedProducts = me?.savedProducts?.map(e => {
-      return products.filter(ev => e === ev._id);
-    });
+  // useEffect(() => {
+  //   //maybe add for each
+  //   const mySavedProducts = me?.savedProducts?.map(e => {
+  //     return products.filter(ev => e === ev._id);
+  //   });
 
-    const mySE = mySavedProducts?.flat(1);
-    // console.log(mySE);
-    setFilteredProducts(mySE);
+  //   const mySE = mySavedProducts?.flat(1);
+  //   // console.log(mySE);
+  //   setFilteredProducts(mySE);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, products]);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [refresh, products]);
 
-  useEffect(() => {
-    let mounted = true;
-    const filterEvents = () => {
-      if (mounted) {
-        const fev = events.filter(e => e.datetime > yesterday.getTime());
+  // useEffect(() => {
+  //   let mounted = true;
+  //   const filterEvents = () => {
+  //     if (mounted) {
+  //       const fev = events.filter(e => e.datetime > yesterday.getTime());
 
-        //maybe add for each
-        const mySavedEvents = me?.savedEvents?.map(e => {
-          return fev.filter(ev => e === ev._id);
-        });
+  //       //maybe add for each
+  //       const mySavedEvents = me?.savedEvents?.map(e => {
+  //         return fev.filter(ev => e === ev._id);
+  //       });
 
-        const mySE = mySavedEvents?.flat(1);
-        // console.log(mySE);
-        setFilteredEvents(mySE);
-      }
-    };
+  //       const mySE = mySavedEvents?.flat(1);
+  //       // console.log(mySE);
+  //       setFilteredEvents(mySE);
+  //     }
+  //   };
 
-    filterEvents();
-    const interval = setInterval(() => {
-      filterEvents();
-    }, 2000);
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
+  //   filterEvents();
+  //   const interval = setInterval(() => {
+  //     filterEvents();
+  //   }, 2000);
+  //   return () => {
+  //     mounted = false;
+  //     clearInterval(interval);
+  //   };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, events]);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [refresh, events]);
 
   return (
     <SafeAreaView style={styles.mainWrapper}>
@@ -305,7 +305,7 @@ const SavedScreen = ({navigation, event, route}) => {
                   justifyContent: 'space-around',
                   paddingVertical: 8,
                 }}>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={() => setIsTabActive(true)}
                   style={{
                     // backgroundColor: 'blue',
@@ -314,84 +314,47 @@ const SavedScreen = ({navigation, event, route}) => {
                     borderColor: isTabActive ? Colors.primary : null,
                   }}>
                   <Text style={{fontWeight: '700', fontSize: 16}}>Events</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    // backgroundColor: 'blue',
-                    paddingBottom: 6,
-                    borderBottomWidth: isTabActive === false ? 3 : 0,
-                    borderColor: isTabActive === false ? Colors.primary : null,
-                  }}
-                  onPress={() => setIsTabActive(false)}>
-                  <Text style={{fontWeight: '700', fontSize: 16}}>
-                    Products
-                  </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
               <View>
-                {isTabActive ? (
-                  <>
-                    {filteredEvents
-                      ?.sort(function (a, b) {
-                        const dateOfA = new Date(
-                          `${a.month}-${a.year}-${a.day}`,
-                        );
-                        const dateOfB = new Date(
-                          `${b.month}-${b.year}-${b.day}`,
-                        );
-                        return dateOfA < dateOfB;
-                      })
-                      .map(evt => {
-                        return (
-                          <View
-                            style={{paddingHorizontal: 15, paddingVertical: 8}}
-                            key={evt._id}>
-                            <TouchableOpacity key={evt._id}>
-                              <EventCard
-                                key={evt._id}
-                                hostName={evt.hostName}
-                                event={evt}
-                                name={evt.name}
-                                startDay={evt.startDay}
-                                year={evt.year}
-                                day={evt.day}
-                                month={evt.month}
-                                endDay={evt.endDay}
-                                location={evt.location}
-                                startTime={evt.startTime}
-                                endTime={evt.endTime}
-                                image={evt.image}
-                                id={evt._id}
-                                host={evt.host}
-                                user={evt.user}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        );
-                      })}
-                  </>
-                ) : (
-                  <>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        paddingLeft: 15,
-                      }}>
-                      {filteredProducts
-                        ?.sort(function (a, b) {
-                          return a.createdAt > b.createdAt;
-                        })
-                        .map(product => {
-                          return (
-                            <View key={product._id}>
-                              <ProductCard product={product} />
-                            </View>
-                          );
-                        })}
-                    </View>
-                  </>
-                )}
+                {events
+                  ?.sort(function (a, b) {
+                    const dateOfA = new Date(a.date);
+                    const dateOfB = new Date(b.date);
+                    return dateOfA < dateOfB;
+                  })
+                  .map(evt => {
+                    return (
+                      <View
+                        style={{paddingHorizontal: 15, paddingVertical: 8}}
+                        key={evt._id}>
+                        <TouchableOpacity key={evt._id}>
+                          <EventCard
+                            key={evt._id}
+                            hostName={evt.hostName}
+                            event={evt}
+                            name={evt.name}
+                            startDay={evt.startDay}
+                            year={evt.year}
+                            day={evt.day}
+                            month={evt.month}
+                            endDay={evt.endDay}
+                            location={evt.location}
+                            startTime={evt.startTime}
+                            endTime={evt.endTime}
+                            image={evt.image}
+                            id={evt._id}
+                            host={evt.host}
+                            user={evt.user}
+                            date={evt.date}
+                            endDate={evt.endDate}
+                            link={evt.link}
+                            description={evt.description}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
               </View>
             </View>
           </ScrollView>

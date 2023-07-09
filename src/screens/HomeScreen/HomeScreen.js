@@ -187,12 +187,9 @@ const Home = ({navigation, event, props}) => {
       }
     };
     loadEvents();
-    // const interval = setInterval(() => {
-    //   loadEvents();
-    // }, 3000);
+
     return () => {
       mounted = false;
-      // clearInterval(interval);
     };
   }, [refresh, events]);
 
@@ -209,13 +206,9 @@ const Home = ({navigation, event, props}) => {
       }
     };
     loadScopes();
-    // const interval = setInterval(() => {
-    //   loadScopes();
-    // }, 2000);
+
     return () => {
       mounted = false;
-
-      // clearInterval(interval);
     };
   }, [refresh, scopes]);
 
@@ -249,13 +242,16 @@ const Home = ({navigation, event, props}) => {
   }, [data._id, users, refresh]);
 
   useEffect(() => {
-    const fev = events.filter(
-      //edited for customization purposes
-      e => e.datetime <= yesterday.getTime() && e.modOnly === false,
-    );
+    const fev = events
+      .filter(
+        //edited for customization purposes
+        e => new Date(e.date) <= yesterday && e.modOnly === false,
+      )
+      .reverse()
+      .slice(0, 10);
 
     const todayE = fev.filter(
-      e => e.datetime < tomorrow.getTime() && e.modOnly === false,
+      e => new Date(e.date) < tomorrow && e.modOnly === false,
     );
 
     //maybe add for each
@@ -587,6 +583,10 @@ const Home = ({navigation, event, props}) => {
                                   id={evt._id}
                                   user={evt.user}
                                   scp={sc}
+                                  date={evt.date}
+                                  endDate={evt.endDate}
+                                  link={evt.link}
+                                  description={evt.description}
                                 />
                               </TouchableOpacity>
                             </View>
@@ -656,6 +656,10 @@ const Home = ({navigation, event, props}) => {
                                         id={ev._id}
                                         user={ev.user}
                                         scp={sc}
+                                        date={ev.date}
+                                        endDate={ev.endDate}
+                                        link={ev.link}
+                                        description={ev.description}
                                       />
                                     </TouchableOpacity>
                                   </View>
@@ -695,6 +699,10 @@ const Home = ({navigation, event, props}) => {
                                         id={evt._id}
                                         user={evt.user}
                                         scp={sc}
+                                        date={evt.date}
+                                        endDate={evt.endDate}
+                                        link={evt.link}
+                                        description={evt.description}
                                       />
                                     </TouchableOpacity>
                                   </View>

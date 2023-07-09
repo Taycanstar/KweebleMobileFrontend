@@ -8,8 +8,9 @@ import {
   Modal,
   TouchableWithoutFeedback,
   TouchableOpacity,
+  Animated,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import Colors from '../../constants/Colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -21,6 +22,8 @@ import {useNavigation} from '@react-navigation/native';
 import ModalDropdown from 'react-native-modal-dropdown';
 import axios from 'axios';
 import {useSelector} from 'react-redux';
+import * as AddCalendarEvent from 'react-native-add-calendar-event';
+import {useEventContext} from '../../contexts/EventContext';
 
 const EventCard = ({
   name,
@@ -38,6 +41,10 @@ const EventCard = ({
   user,
   hostName,
   scp,
+  date,
+  endDate,
+  link,
+  description,
   // onDelete,
 }) => {
   const navigation = useNavigation();
@@ -46,32 +53,73 @@ const EventCard = ({
   const [isModalVisible, setIsModalVisible] = useState('');
   const [isReportOptionsVisible, setIsReportOptionsVisible] = useState(false);
   const [isReportSentVisible, setIsReportSentVisible] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [me, setMe] = useState('');
+  const [isSaved, setIsSaved] = useState(savedEvents?.includes(id));
   const [reportOption, setReportOption] = useState('');
   const [isMoreVisible, setIsMoreVisible] = useState(false);
+  const {savedEvents, fetchSavedEvents, addSavedEvent, removeSavedEvent} =
+    useEventContext();
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const fadeIn = () => {
+    // Will change fadeAnim value to 1 in 5 seconds
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const fadeOut = () => {
+    // Will change fadeAnim value to 0 in 3 seconds
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const SavedPopup = () => {
+    return (
+      <Animated.View
+        style={{
+          zIndex: 20,
+          opacity: fadeAnim,
+          position: 'absolute',
+          justifyContent: 'center',
+          alignItems: 'center',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          paddingLeft: 7,
+          paddingRight: 2,
+        }}>
+        <Animated.View
+          style={{
+            position: 'relative',
+            justifyContent: 'center',
+            alignItems: 'center',
+            // height: 40,
+            borderRadius: 5,
+            padding: 4,
+            width: '100%',
+
+            // paddingHorizontal: 5,
+            backgroundColor: '#202123',
+          }}
+          pointerEvents="none">
+          <Text style={{color: 'white', position: 'relative', fontSize: 12}}>
+            {isSaved ? 'Saved' : 'Unsaved'}
+          </Text>
+        </Animated.View>
+      </Animated.View>
+    );
+  };
 
   useEffect(() => {
-    let mounted = true;
-
-    if (mounted) {
-      const x = data?.savedEvents?.filter(se => se === id)[0];
-      if (x !== undefined) {
-        setIsSaved(true);
-      } else {
-        setIsSaved(false);
-      }
-    }
-
-    // const interval = setInterval(() => {
-    //   mounted = true;
-    // }, 2000);
-    return () => {
-      mounted = false;
-      // clearInterval(interval);
-    };
-  }, [data, id]);
+    // Check if this event is saved when the savedEvents state changes
+    setIsSaved(savedEvents?.includes(id));
+  }, [savedEvents, id]);
 
   const onEventPress = () => {
     navigation.navigate('Event', {data: event, scp});
@@ -128,55 +176,66 @@ const EventCard = ({
     );
   };
 
-  const onUnsave = async () => {
-    setIsSaved(false);
-    try {
-      const resp = await axios.put(
-        `https://kweeble.herokuapp.com/auth/events/del/${data?._id}`,
-        // `http://localhost:3000/scopes/del/${data._id}`,
-        {
-          id: data?._id,
-          event: id,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
+  const onUnsave = () => {
+    removeSavedEvent(id, async () => {
+      try {
+        const resp = await axios.put(
+          `https://kweeble.herokuapp.com/auth/events/del/${data?._id}`,
+          {
+            id: data?._id,
+            event: id,
           },
-        },
-      );
-
-      console.log(resp, 'del');
-    } catch (error) {
-      console.log(error);
-      setIsSaved(true);
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        console.log(resp, 'del');
+      } catch (error) {
+        console.log(error);
+        setIsSaved(true);
+        addSavedEvent(id, () => {});
+      }
+    });
+  };
+  const onSave = () => {
+    addSavedEvent(id, async () => {
+      try {
+        const response = await axios.put(
+          `https://kweeble.herokuapp.com/auth/events/${data?._id}`,
+          {
+            id: data?._id,
+            event: id,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        console.log(response, 'res');
+      } catch (error) {
+        console.log(error);
+        removeSavedEvent(id, () => {});
+      }
+    });
+  };
+  const handleSave = () => {
+    if (isSaved) {
+      onUnsave();
+      fadeIn();
+      setTimeout(() => {
+        fadeOut();
+      }, 1500);
+    } else {
+      onSave();
+      fadeIn();
+      setTimeout(() => {
+        fadeOut();
+      }, 1500);
     }
   };
-
-  const onSave = async () => {
-    console.log('ki');
-    setIsSaved(true);
-    try {
-      const response = await axios.put(
-        `https://kweeble.herokuapp.com/auth/events/${data?._id}`,
-        // `http://localhost:3000/auth/${data._id}`,
-        {
-          id: data?._id,
-          event: id,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      setIsSaved(true);
-      console.log(response, 'res');
-    } catch (error) {
-      console.log(error);
-      setIsSaved(false);
-    }
-  };
-
   const onBlock = async () => {
     try {
       const response = await axios.put(
@@ -199,55 +258,9 @@ const EventCard = ({
     }
   };
 
-  useEffect(() => {
-    let mounted = true;
-    const loadUsers = async () => {
-      try {
-        const {data} = await axios.get('https://kweeble.herokuapp.com/api');
-        if (mounted) {
-          setUsers(data);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    loadUsers();
-
-    const interval = setInterval(() => {
-      loadUsers();
-    }, 1000);
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const loadDimi = async () => {
-      if (mounted) {
-        const y = users.filter(u => u._id === data?._id)[0];
-        setMe(y);
-      }
-    };
-
-    loadDimi();
-
-    const interval = setInterval(() => {
-      //   loadDimi();
-    }, 1000);
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, [data._id, users]);
-
-  // console.log(me?.savedEvents?.filter(se => se._id === id)[0], 'lo');
-
-  const onReport = async () => {
+  const onReport = () => {
     try {
-      const res = await axios.post(
+      const res = axios.post(
         'https://kweeble.herokuapp.com/reports',
         {
           reason: reportOption,
@@ -263,10 +276,39 @@ const EventCard = ({
       );
       setIsReportOptionsVisible(false);
       setIsReportSentVisible(true);
-      console.log(res, 'success =>');
+      // console.log(res, 'success =>');
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const addEventToCalendar = () => {
+    const eventConfig = {
+      title: name,
+      startDate: new Date(date).toISOString(), // remember these are UTC times, for local times use new Date().toISOString()
+      endDate: new Date(endDate).toISOString(),
+      location: location,
+      notes: description,
+      allDay: false,
+    };
+
+    AddCalendarEvent.presentEventCreatingDialog(eventConfig)
+      .then(
+        (eventInfo: {
+          calendarItemIdentifier: string,
+          eventIdentifier: string,
+        }) => {
+          // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
+          // These are two different identifiers on iOS.
+          // On Android, where they are both equal and represent the event id, also strings.
+          // when { action: 'CANCELED' } is returned, the dialog was dismissed
+          console.log(JSON.stringify(eventInfo));
+        },
+      )
+      .catch((error: string) => {
+        // handle error such as when user rejected permissions
+        console.log(error);
+      });
   };
 
   return (
@@ -344,7 +386,9 @@ const EventCard = ({
               </Text>
             </View>
           )}
+          <SavedPopup />
         </View>
+
         <View
           style={{
             justifyContent: 'space-between',
@@ -364,24 +408,25 @@ const EventCard = ({
 
           <View></View>
           <View>
-            {me?.savedEvents?.filter(se => se === id)[0] !== undefined ? (
+            {isSaved ? (
               <FontAwesome
                 name="bookmark"
                 size={20}
                 color="black"
-                onPress={onUnsave}
+                onPress={handleSave}
               />
             ) : (
               <FontAwesome
                 name="bookmark-o"
                 size={20}
                 color="black"
-                onPress={onSave}
+                onPress={handleSave}
               />
             )}
           </View>
         </View>
       </View>
+
       {isModalVisible === true ? (
         <TouchableWithoutFeedback>
           <View
@@ -989,7 +1034,6 @@ const EventCard = ({
               backgroundColor: '#000000AA',
               // justifyContent: 'flex-start',
             }}>
-            {/* <TouchableWithoutFeedback> */}
             <View
               style={{
                 marginTop: 580,
@@ -999,24 +1043,76 @@ const EventCard = ({
                 borderTopLeftRadius: 20,
                 paddingHorizontal: 15,
                 height: '100%',
+                paddingTop: 25,
               }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setIsMoreVisible(false);
+                  addEventToCalendar();
+                }}
+                style={{
+                  backgroundColor: Colors.metagray,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 10,
+                  padding: 15,
+                  borderRadius: 10,
+                }}>
+                <Text style={{fontSize: 16, fontWeight: '400'}}>
+                  Add to calendar
+                </Text>
+                <Feather name="calendar" size={20} color="black" />
+              </TouchableOpacity>
+              {user !== data?._id ? (
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsMoreVisible(false);
+                    setIsReportOptionsVisible(true);
+                  }}
+                  style={{
+                    backgroundColor: Colors.metagray,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 10,
+                    padding: 15,
+                    borderRadius: 10,
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: '400',
+                      color: Colors.strongRed,
+                    }}>
+                    Report event
+                  </Text>
+                  <Feather
+                    name="alert-circle"
+                    size={20}
+                    color={Colors.strongRed}
+                  />
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
                 onPress={() => {
                   setIsMoreVisible(false);
                 }}
                 style={{
+                  backgroundColor: Colors.metagray,
                   flexDirection: 'row',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  marginTop: 15,
+                  marginBottom: 10,
+                  padding: 15,
+                  borderRadius: 10,
                 }}>
-                <Text style={{fontSize: 18, fontWeight: '400'}}>
-                  Add to calendar
+                <Text style={{fontSize: 16, fontWeight: '400'}}>
+                  Save event
                 </Text>
-                <Feather name="calendar" size={20} color="black" />
+                <FontAwesome name="bookmark-o" size={20} color="black" />
               </TouchableOpacity>
             </View>
-            {/* </TouchableWithoutFeedback> */}
           </TouchableOpacity>
         </Modal>
       </TouchableOpacity>
@@ -1028,7 +1124,7 @@ export default EventCard;
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: Colors.white,
+    backgroundColor: '#FFF  ',
     flex: 1,
     flexDirection: 'row',
     paddingTop: 15,
