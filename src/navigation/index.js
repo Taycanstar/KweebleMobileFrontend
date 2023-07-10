@@ -527,15 +527,6 @@ const TabNavigator = props => {
         })}
       />
       <Tab.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          tabBarIcon: ({color, size}) => (
-            <Ionicons name="search" size={25} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
         name="Add"
         component={AddEventStack}
         options={{
@@ -547,6 +538,16 @@ const TabNavigator = props => {
           tabBarShowLabel: false,
         }}
       />
+      <Tab.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{
+          tabBarIcon: ({color, size}) => (
+            <Ionicons name="search" size={25} color={color} />
+          ),
+        }}
+      />
+
       {/* <Tab.Screen
         name="Messages"
         component={MessagesStack}
@@ -558,7 +559,7 @@ const TabNavigator = props => {
         }}
       /> */}
 
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Notifications"
         initialParams={{notis: 3}}
         component={NotificationScreen}
@@ -570,7 +571,7 @@ const TabNavigator = props => {
             // <TabBarItem />
           ),
         }}
-      />
+      /> */}
 
       {/* <Tab.Screen
         name="MarketplaceStack"

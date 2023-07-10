@@ -83,10 +83,10 @@ const AddEventScreen = props => {
   const [eventDate, setEventDate] = useState(new Date());
   const [eventEndDate, setEventEndDate] = useState(new Date());
   const [notificationTime, setNotificationTime] = useState(new Date());
-  const [notiText, setNotiText] = useState('');
+  const [notiText, setNotiText] = useState('None');
   const [notificationDescription, setNotificationDescription] = useState('');
   const [eventLink, setEventLink] = useState('');
-
+  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
   const changeScopeVisible = bool => {
     setIsScopeVisible(bool);
   };
@@ -97,6 +97,10 @@ const AddEventScreen = props => {
 
   const changeLocVisible = bool => {
     setIsLocVisible(bool);
+  };
+
+  const changeNotificationVisible = bool => {
+    setIsNotificationVisible(bool);
   };
 
   const changeModalVisible = bool => {
@@ -113,6 +117,10 @@ const AddEventScreen = props => {
 
   const closeLoc = (bool, info) => {
     changeLocVisible(bool);
+  };
+
+  const closeNotification = (bool, info) => {
+    changeNotificationVisible(bool);
   };
 
   const closeIcon = (bool, info) => {
@@ -207,7 +215,7 @@ const AddEventScreen = props => {
     setEventDate(new Date());
     setEventEndDate(new Date());
     setEventLink('');
-    setNotiText('');
+    setNotiText('None');
     setNotificationDescription('');
     setNotificationTime(new Date());
   };
@@ -540,8 +548,22 @@ const AddEventScreen = props => {
       setIsMediaLoading(false);
     }
   };
+  const onNotificationPress = (num, text) => {
+    setIsNotificationVisible(false);
+    setNotiText(text);
 
-  console.log(scopes, 'scopes fetched');
+    let originalDate = new Date(eventDate); // your specific date
+    let newDate;
+
+    if (num === 'None') {
+      newDate = null; // no notification
+    } else {
+      newDate = new Date(originalDate.getTime() - num * 60 * 1000);
+      // if num is in minutes, multiply by 60 * 1000 to get milliseconds
+    }
+
+    setNotificationTime(newDate);
+  };
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -977,6 +999,36 @@ const AddEventScreen = props => {
                     </View>
                   </View>
                 </View>
+
+                <View style={styles.iconRow}>
+                  <View>
+                    <Text style={{fontSize: 14, fontWeight: '400'}}>
+                      Notification time
+                    </Text>
+                  </View>
+                  <View>
+                    <View style={styles.iconInput}>
+                      <TouchableOpacity
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          // paddingLeft: 15,
+                          paddingRight: 5,
+                          paddingTop: 5,
+                        }}
+                        // onPress={() => setIsModalVisible(true)}
+                        onPress={() => setIsNotificationVisible(true)}>
+                        <Text style={{fontSize: 14}}>{notiText}</Text>
+                        <MaterialIcons
+                          name="keyboard-arrow-down"
+                          size={23}
+                          color={'gray'}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
                 {/* 
                 <View style={styles.row3}>
                   <View>
@@ -1106,133 +1158,6 @@ const AddEventScreen = props => {
           </View>
         </>
       )}
-      {/* 
-      <TouchableWithoutFeedback onPress={closeModal}>
-        <Modal
-          animationType={'fade'}
-          transparent={true}
-          visible={false}
-          onRequestClose={closeModal}>
-          <TouchableOpacity
-            style={{flex: 1}}
-            onPress={() => setIsModalVisible(false)}
-            activeOpacity={1}>
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: '#000000AA',
-                // justifyContent: 'flex-end',
-              }}>
-
-
-              <View
-                style={{
-                  backgroundColor: '#fff',
-                  width: '100%',
-                  borderTopRightRadius: 10,
-                  borderTopLeftRadius: 10,
-                  paddingHorizontal: 10,
-                  maxHeight: deviceHeight * 0.4,
-                  paddingBottom: 12,
-                  marginTop: 45,
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text>{'        '}</Text>
-                  <Text
-                    style={{
-                      color: 'black',
-                      fontSize: 16,
-                      textAlign: 'center',
-                      fontWeight: '600',
-                      margin: 5,
-                      paddingTop: 5,
-                    }}>
-                    Select scope
-                  </Text>
-
-                  <TouchableOpacity
-                    onPress={() => setIsModalVisible(false)}
-                    style={{paddingTop: 10}}>
-                    <Feather
-                      name="x"
-                      size={25}
-                      color="black"
-                      backgroundColor="white"
-                    />
-                  </TouchableOpacity>
-                </View>
-
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-
-                    //   alignItems: 'center',
-                  }}>
-                  {myScopes.map(scope => {
-                    return (
-                      <View key={scope._id}>
-                        <ScrollView>
-                          <TouchableOpacity
-                            onPress={() => {
-                              setScope(scope._id);
-                              // setIsScopeSelected(true);
-                              setIsModalVisible(false);
-                              setScopeName(scope.name);
-                              setCatherine(`${scope.name}`);
-                            }}
-                            key={scope.id}
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              paddingHorizontal: 3,
-                              marginBottom: 8,
-                              height: '100%',
-                            }}>
-                            <Image
-                              source={
-                                scope.photo
-                                  ? {uri: scope.photo}
-                                  : require('../../../assets/images/logo3.jpg')
-                              }
-                              style={{
-                                width: 35,
-                                height: 35,
-                                borderRadius: 100,
-                                borderWidth: 0,
-                              }}
-                            />
-                            <View
-                              style={{
-                                marginLeft: 15,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                              }}>
-                              <Text
-                                style={{
-                                  color: '#182e44',
-                                  fontSize: 16,
-                                  fontWeight: '600',
-                                }}>
-                                {scope.name}
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        </ScrollView>
-                      </View>
-                    );
-                  })}
-                </View>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </Modal>
-      </TouchableWithoutFeedback> */}
-
       <TouchableWithoutFeedback onPress={closeIcon}>
         <Modal
           animationType={'slide'}
@@ -1383,7 +1308,6 @@ const AddEventScreen = props => {
           </View>
         </Modal>
       </TouchableWithoutFeedback>
-
       <TouchableWithoutFeedback onPress={closeLoc}>
         <Modal
           animationType={'slide'}
@@ -1404,12 +1328,10 @@ const AddEventScreen = props => {
                 width: '100%',
                 borderTopRightRadius: 10,
                 borderTopLeftRadius: 10,
-                // paddingHorizontal: 10,
-                // maxHeight: deviceHeight * 0.4,
+
                 height: '100%',
                 paddingBottom: 12,
                 marginTop: 45,
-                // flex: 1,
               }}>
               <View
                 style={{
@@ -1417,7 +1339,6 @@ const AddEventScreen = props => {
                   justifyContent: 'space-between',
                   paddingBottom: 5,
                   paddingHorizontal: 10,
-                  // flex: 1,
                 }}>
                 <Pressable onPress={() => setIsLocVisible(false)}>
                   <Text
@@ -1475,12 +1396,10 @@ const AddEventScreen = props => {
                       borderRadius: 5,
                     },
                     textInput: {
-                      // borderBottomWidth: 1,
-                      // borderColor: 'lightgray',
                       borderColor: '#e8e8e8',
                       borderBottomColor: 'lightgray',
                       borderWidth: 1,
-                      // marginBottom: 15,
+
                       fontSize: 16,
                       paddingBottom: 15,
                       paddingTop: 10,
@@ -1491,10 +1410,7 @@ const AddEventScreen = props => {
                       marginTop: 10,
                       borderRadius: 8,
                     },
-                    listView: {
-                      // overflow: 'visible',
-                      // zIndex: 99,
-                    },
+                    listView: {},
                   }}
                   GooglePlacesSearchQuery={{
                     rankby: 'distance',
@@ -1553,19 +1469,6 @@ const AddEventScreen = props => {
           </View>
         </Modal>
       </TouchableWithoutFeedback>
-      {/* 
-      <Modal
-        visible={isScopeVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => changeScopeVisible(false)}>
-        <ScopesPopup
-          changeScopeVisible={changeScopeVisible}
-          setScope={e => setCatherine(`${e}`)}
-          setId={e => setScope(e)}
-        />
-      </Modal> */}
-
       <TouchableWithoutFeedback onPress={() => changeScopeVisible(false)}>
         <Modal
           animationType={'slide'}
@@ -1640,7 +1543,6 @@ const AddEventScreen = props => {
                                 setCatherine(sc?.name);
                                 setData({...data, scope: sc._id});
                                 setIsScopeVisible(false);
-                                console.log('hi');
                               }}
                               key={sc?.id}
                               style={{
@@ -1711,6 +1613,204 @@ const AddEventScreen = props => {
           />
         </TouchableOpacity>
       </Modal>
+
+      <TouchableWithoutFeedback
+        onPress={() => changeNotificationVisible(false)}>
+        <Modal
+          animationType={'slide'}
+          transparent={true}
+          visible={isNotificationVisible}
+          onRequestClose={closeNotification}>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => changeNotificationVisible(false)}
+            style={{flex: 1}}>
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: '#000000AA',
+                // justifyContent: 'flex-end',
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#fff',
+                  width: '100%',
+                  borderTopRightRadius: 25,
+                  borderTopLeftRadius: 25,
+                  paddingHorizontal: 10,
+                  height: '100%',
+                  // maxHeight: deviceHeight * 0.4,
+                  paddingBottom: 12,
+                  marginTop: 270,
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => setIsNotificationVisible(false)}
+                    style={{paddingTop: 10, borderRadius: 100}}>
+                    <MaterialIcons
+                      // onPress={() => navigation.goBack()}
+                      name="arrow-back-ios"
+                      size={20}
+                      color="black"
+                    />
+                  </TouchableOpacity>
+                  <Text
+                    style={{
+                      color: 'black',
+                      fontSize: 16,
+                      // textAlign: 'center',
+                      fontWeight: '600',
+                      margin: 5,
+                      paddingTop: 5,
+                      marginBottom: 15,
+                    }}>
+                    Notification time
+                  </Text>
+
+                  <View>
+                    <Text>{'     '}</Text>
+                  </View>
+                </View>
+
+                <ScrollView>
+                  <TouchableOpacity
+                    onPress={() => onNotificationPress('None', 'None')}
+                    style={{
+                      backgroundColor: Colors.metagray,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      padding: 15,
+                      borderRadius: 10,
+                      width: '100%',
+                    }}>
+                    <Text style={{fontSize: 16, fontWeight: '400'}}>None</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      onNotificationPress(0, 'At time of the event')
+                    }
+                    style={{
+                      backgroundColor: Colors.metagray,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      padding: 15,
+                      borderRadius: 10,
+                      width: '100%',
+                    }}>
+                    <Text style={{fontSize: 16, fontWeight: '400'}}>
+                      At time of the event
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => onNotificationPress(10, '10 minutes before')}
+                    style={{
+                      backgroundColor: Colors.metagray,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      padding: 15,
+                      borderRadius: 10,
+                      width: '100%',
+                    }}>
+                    <Text style={{fontSize: 16, fontWeight: '400'}}>
+                      10 minutes before
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => onNotificationPress(15, '15 minutes before')}
+                    style={{
+                      backgroundColor: Colors.metagray,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      padding: 15,
+                      borderRadius: 10,
+                      width: '100%',
+                    }}>
+                    <Text style={{fontSize: 16, fontWeight: '400'}}>
+                      15 minutes before
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => onNotificationPress(30, '30 minutes before')}
+                    style={{
+                      backgroundColor: Colors.metagray,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      padding: 15,
+                      borderRadius: 10,
+                      width: '100%',
+                    }}>
+                    <Text style={{fontSize: 16, fontWeight: '400'}}>
+                      30 minutes before
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => onNotificationPress(45, '45 minutes before')}
+                    style={{
+                      backgroundColor: Colors.metagray,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      padding: 15,
+                      borderRadius: 10,
+                      width: '100%',
+                    }}>
+                    <Text style={{fontSize: 16, fontWeight: '400'}}>
+                      45 minutes before
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => onNotificationPress(60, '1 hour before')}
+                    style={{
+                      backgroundColor: Colors.metagray,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      padding: 15,
+                      borderRadius: 10,
+                      width: '100%',
+                    }}>
+                    <Text style={{fontSize: 16, fontWeight: '400'}}>
+                      1 hour before
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => onNotificationPress(120, '2 hours before')}
+                    style={{
+                      backgroundColor: Colors.metagray,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      padding: 15,
+                      borderRadius: 10,
+                      width: '100%',
+                    }}>
+                    <Text style={{fontSize: 16, fontWeight: '400'}}>
+                      2 hours before
+                    </Text>
+                  </TouchableOpacity>
+                </ScrollView>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
