@@ -242,16 +242,13 @@ const Home = ({navigation, event, props}) => {
   }, [data._id, users, refresh]);
 
   useEffect(() => {
-    const fev = events
-      .filter(
-        //edited for customization purposes
-        e => new Date(e.date) <= yesterday && e.modOnly === false,
-      )
-      .reverse()
-      .slice(0, 10);
+    const fev = events.filter(
+      //edited for customization purposes
+      e => new Date(e.date) >= yesterday && e.modOnly === false,
+    );
 
     const todayE = fev.filter(
-      e => new Date(e.date) < tomorrow && e.modOnly === false,
+      e => new Date(e.date) <= tomorrow && e.modOnly === false,
     );
 
     //maybe add for each

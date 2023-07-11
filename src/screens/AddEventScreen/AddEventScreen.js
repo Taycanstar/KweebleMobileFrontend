@@ -185,9 +185,9 @@ const AddEventScreen = props => {
       month: '',
       day: '',
       year: '',
-      startTime: '',
-      endDay: '',
-      endTime: '',
+      startTime: formatAMPM(eventDate),
+      endDay: formatAMPM(eventEndDate),
+      endTime: formatAMPM(eventEndDate),
       datetime: '',
       image: '',
       description: '',
@@ -306,6 +306,70 @@ const AddEventScreen = props => {
   }, [navigation]);
 
   const onAddEvent = async e => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      setData({...data});
+      let token = await AsyncStorage.getItem('token', token);
+      const res = await axios.post(
+        'https://kweeble.herokuapp.com/events',
+        {
+          name,
+          location,
+          month,
+          year,
+          day,
+          startTime,
+          endDay,
+          endTime,
+          datetime,
+          image,
+          description,
+          host,
+          latitude,
+          longitude,
+          icon,
+          user: user._id,
+          scope,
+          going,
+          hostName: user.name,
+          goingBtn,
+          goingBtnText,
+          media,
+          modOnly,
+          repeat,
+          date: eventDate,
+          notificationTime,
+          endDate: eventEndDate,
+          notiText,
+          notificationDescription,
+
+          link: eventLink,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (res.data.error) {
+        throw new Error(res.data.error);
+      }
+
+      console.log(res, '<===success!');
+      clearForm();
+      setIsLoading(false);
+      navigation.navigate('HomeScreen', {setRef: 'ref ye'});
+    } catch (error) {
+      console.log(error.response.data.error); // Log the error message instead of error.response.data.error
+      setError(true);
+      setErrorMsg(error.response.data.error); // Set the error message instead of error.response.data.error
+      setIsLoading(false);
+    }
+  };
+
+  const onAddEventd = async e => {
     e.preventDefault();
     setIsLoading(true);
     try {
@@ -1029,6 +1093,43 @@ const AddEventScreen = props => {
                     </View>
                   </View>
                 </View>
+                {notiText !== 'None' ? (
+                  <View
+                    style={{
+                      backgroundColor: Colors.subtleGray,
+                      maxWidth: '100%',
+                      minWidth: 127,
+                      // height: 35,
+                      justifyContent: 'center',
+                      borderColor: '#e8e8e8',
+                      borderRadius: 8,
+                      paddingRight: 5,
+                      paddingLeft: 15,
+                      paddingVertical: 10,
+                      marginBottom: 10,
+                    }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                      onPress={() => setIsLocVisible(true)}>
+                      <TextInput
+                        multiline={true}
+                        style={{fontWeight: '400'}}
+                        placeholder="Notification details"
+                        autoCapitalize="none"
+                        placeholderTextColor={Colors.lightgray}
+                        onChangeText={newText =>
+                          setNotificationDescription(newText)
+                        }
+                        value={notificationDescription}
+                      />
+                    </View>
+                  </View>
+                ) : null}
+
                 {/* 
                 <View style={styles.row3}>
                   <View>
@@ -1904,19 +2005,14 @@ const styles = StyleSheet.create({
   },
   mapInput: {
     backgroundColor: Colors.subtleGray,
-    // width: '47.5%',
     maxWidth: '100%',
     minWidth: 127,
     height: 35,
     justifyContent: 'center',
     borderColor: '#e8e8e8',
-    // borderWidth: 1,
-    // paddingHorizontal: 10,
-    // marginVertical: 5,
     borderRadius: 8,
     paddingRight: 5,
     paddingLeft: 15,
-    // alignItems: 'center',
   },
   collegeInputText: {
     color: 'black',
