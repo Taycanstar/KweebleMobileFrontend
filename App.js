@@ -22,6 +22,7 @@ import {
   Text,
   useColorScheme,
   View,
+  StatusBar,
 } from 'react-native';
 
 import thunk from 'redux-thunk';
@@ -39,6 +40,7 @@ const App = () => {
     <GestureHandlerRootView style={{flex: 1, width: '100%'}}>
       <Provider store={store}>
         <EventProvider>
+          <StatusBar barStyle="dark-content" />
           <Navigation />
         </EventProvider>
       </Provider>

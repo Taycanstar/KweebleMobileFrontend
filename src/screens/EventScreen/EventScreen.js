@@ -24,6 +24,7 @@ import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GoingPopup from '../../components/GoingPopup/';
+import ScopeCard from '../../components/ScopeCard//';
 import BlurEventMedia from '../../components/BlurEventMedia/';
 import {useSelector} from 'react-redux';
 import {BlurView} from '@react-native-community/blur';
@@ -79,23 +80,7 @@ const EventScreen = props => {
   const [scopes, setScopes] = useState([]);
   const [isLoading, setIsLoading] = useState([]);
   const id = data._id;
-
-  // useEffect(() => {
-  //   const ref = navigation.addListener('focus', () => {
-  //     // The screen is focused
-  //     // Call any action
-
-  //     setRefresh(true);
-
-  //     setTimeout(() => {
-  //       setRefresh(false);
-  //     }, 1000);
-  //   });
-
-  //   return ref;
-  // }, [navigation]);
-
-  console.log(id, 'scope');
+  const [eventScope, setEventScope] = useState({});
 
   const changeModalVisible = bool => {
     setIsModalVisible(bool);
@@ -156,10 +141,6 @@ const EventScreen = props => {
     };
 
     loadDimi();
-
-    // const interval = setInterval(() => {
-    //   loadDimi();
-    // }, 3000);
     return () => {
       mounted = false;
       // clearInterval(interval);
@@ -179,37 +160,10 @@ const EventScreen = props => {
       }
     };
     loadEvents();
-
-    // const interval = setInterval(() => {
-    //   loadEvents();
-    // }, 3000);
     return () => {
       mounted = false;
-      // clearInterval(interval);
     };
   }, [refresh]);
-
-  // useEffect(() => {
-  //   let mounted = true;
-
-  //   const load = async () => {
-  //     if (mounted) {
-  //       const y = events.filter(u => u._id === data._id)[0];
-
-  //       setCurrEvent(y);
-  //     }
-  //   };
-
-  //   load();
-
-  //   const interval = setInterval(() => {
-  //     load();
-  //   }, 1000);
-  //   return () => {
-  //     mounted = false;
-  //     clearInterval(interval);
-  //   };
-  // }, [users, refresh, events, data._id]);
 
   useEffect(() => {
     let mounted = true;
@@ -218,21 +172,23 @@ const EventScreen = props => {
         const {data} = await axios.get('https://kweeble.herokuapp.com/scopes/');
         if (mounted) {
           setScopes(data);
+          const xyz = scopes.filter(s => s._id == scope);
+          setEventScope(xyz);
         }
       } catch (error) {
         console.log(error);
       }
     };
     loadScopes();
-    // const interval = setInterval(() => {
-    //   loadScopes();
-    // }, 3000);
+
     return () => {
       mounted = false;
 
       // clearInterval(interval);
     };
-  }, [refresh]);
+  }, [refresh, scope, scopes]);
+
+  // console.log(eventScope, 'evsc');
 
   const onButtonPress = id => {
     changeModalVisible(true);
@@ -343,27 +299,6 @@ const EventScreen = props => {
     }
   };
 
-  // const psex = async () => {
-  //   try {
-  //     const response = await axios.post(
-  //       `https://kweeble.herokuapp.com/auth/following`,
-  //       // `http://localhost:3000/auth/${data._id}`,
-  //       {},
-  //       {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       },
-  //     );
-
-  //     console.log(response, 'hey');
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // console.log(currScope, '=> curr');
-
   return (
     <SafeAreaView style={styles.eventContainer}>
       {isLoading ? (
@@ -388,14 +323,7 @@ const EventScreen = props => {
                 }}>
                 <Text style={styles.headerText}>{data?.name}</Text>
               </View>
-              {/* <Ionicons
-            onPress={() => {
-              setIsShareVisible(true);
-            }}
-            name="share-outline"
-            size={25}
-            color={'black'}
-          /> */}
+
               <TouchableOpacity
                 onPress={() => {
                   setIsDropVisible(true);
@@ -461,10 +389,6 @@ const EventScreen = props => {
                   </View>
 
                   <View style={styles.dateRow}>
-                    {/* <Text
-                  style={
-                    styles.startTime
-                  }>{`${data.startTime} - ${data.endTime}`}</Text> */}
                     <Text style={styles.startTime}>{`${data?.startTime} ${
                       data?.endTime ? '-' : ''
                     } ${data?.endTime}`}</Text>
@@ -487,7 +411,14 @@ const EventScreen = props => {
                   <Text style={styles.descriptionTitle}>Description</Text>
                   <Text style={styles.description}>{data?.description}</Text>
                 </View>
+                <View>
+                  <Text style={styles.descriptionTitle}>Scope</Text>
+                  <View style={{marginBottom: 10}}>
+                    <ScopeCard scope={scope} />
+                  </View>
+                </View>
               </View>
+
               {data?.media.length > 0 && (
                 <View>
                   <View style={{marginHorizontal: 15, marginBottom: 10}}>

@@ -483,7 +483,7 @@ const ScopeScreen = props => {
     const newWidth = contentOffset.y >= 0 ? SCREEN_WIDTH : SCREEN_WIDTH * 2.15;
     setImageWidth(newWidth);
 
-    const newColor = scrollY <= 150 ? 'white' : 'rgba(52,52,52,0';
+    const newColor = scrollY <= 150 ? 'white' : 'rgba(52,52,52,0)';
     setTextColor(newColor);
   };
 
@@ -577,12 +577,10 @@ const ScopeScreen = props => {
             <Text
               style={{
                 color: textColor,
-
                 fontSize: 20,
                 fontWeight: 'bold',
                 marginLeft: 10,
                 textAlign: 'center',
-
                 position: 'absolute',
                 top: -33,
               }}>
@@ -602,10 +600,7 @@ const ScopeScreen = props => {
             ])}>
             <Animated.View style={styles.profileInfo}>
               <View style={styles.titlefame}>
-                <Text style={styles.fame}>
-                  {/* ${currScope !== undefined ? currScope.name : data.name} */}
-                  {currScope?.name}
-                </Text>
+                <Text style={styles.fame}>{currScope?.name}</Text>
               </View>
               <View
                 style={{
@@ -653,7 +648,6 @@ const ScopeScreen = props => {
                 <TouchableOpacity
                   onPress={() => {
                     setActiveTab('about');
-                    // pullLoad();
                   }}
                   style={{
                     // paddingTop: 5,
@@ -1515,6 +1509,7 @@ const styles = StyleSheet.create({
     overflow: 'visible',
     width: '100%',
     height: '100%',
+    minHeight: 500,
     // height: titleHeight,
     // marginTop: MAX_HEIGHT + 90,
     marginTop: MAX_HEIGHT,

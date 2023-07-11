@@ -45,7 +45,6 @@ const EventCard = ({
   endDate,
   link,
   description,
-  // onDelete,
 }) => {
   const navigation = useNavigation();
   const data = useSelector(state => state.Reducers.userData);
@@ -58,6 +57,7 @@ const EventCard = ({
   const [isMoreVisible, setIsMoreVisible] = useState(false);
   const {savedEvents, fetchSavedEvents, addSavedEvent, removeSavedEvent} =
     useEventContext();
+  const [scopes, setScopes] = useState([]);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
