@@ -14,6 +14,7 @@ import {
   RefreshControl,
   Dimensions,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {CustomButton} from '../../components/CustomButton';
@@ -803,6 +804,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     marginBottom: 20,
+
     // borderColor: '#c6c6c6',
     // borderWidth: 1,
     borderRadius: 8,
@@ -819,11 +821,14 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     borderRadius: 100,
     paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingVertical: Platform.OS === 'ios' ? 8 : 2,
     backgroundColor: Colors.metagray,
+    // alignItems: 'center',
   },
   searchIcon: {
     marginRight: 5,
+
+    paddingVertical: 10,
   },
   searchInput: {},
   profileImage: {
