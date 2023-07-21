@@ -39,8 +39,6 @@ const App = () => {
     LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
   }, []);
 
-  PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-
   async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -58,6 +56,10 @@ const App = () => {
     });
 
     return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    requestUserPermission();
   }, []);
   return (
     <GestureHandlerRootView style={{flex: 1, width: '100%'}}>
