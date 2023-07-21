@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "224143201726",
+    "project_id": "kweeble-app-a7ac2",
+    "storage_bucket": "kweeble-app-a7ac2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:224143201726:android:ec1cd035d7a7217233d5ef",
+        "android_client_info": {
+          "package_name": "com.kwe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "224143201726-vpabrsj9ofj2d4qacd1l66fptdo7baa0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kwe",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "224143201726-kqudugkethev7bgt1m3nghdmkt1hvkgs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0Cm99ZzPwtTdwFzTdqBbMju87Dh3nL2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "224143201726-kqudugkethev7bgt1m3nghdmkt1hvkgs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "224143201726-pemuurbqlmohnfdojai6l0s10fh5dmhs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.kwe",
+                "app_store_id": "1667941410"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
