@@ -872,7 +872,7 @@ const AddEventScreen = props => {
                     />
                     <View style={styles.dateChangeContainer}>
                       <Pressable onPress={onOpen2Press}>
-                        <Text style={styles.date}>{formatAMPM(date)}</Text>
+                        <Text style={styles.date}>{formatAMPM(eventDate)}</Text>
                       </Pressable>
                     </View>
 

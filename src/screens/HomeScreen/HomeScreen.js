@@ -54,6 +54,7 @@ import Animated, {
   Easing,
   timing,
 } from 'react-native-reanimated';
+import messaging from '@react-native-firebase/messaging';
 
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
@@ -384,6 +385,15 @@ const Home = ({navigation, event, props}) => {
     },
     [],
   );
+
+  useEffect(() => {
+    myScopes.map(sc => {
+      messaging()
+        .subscribeToTopic(sc._id)
+        .then(() => console.log('Subscribed to topic!', sc._id));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <SafeAreaView style={styles.mainWrapper}>

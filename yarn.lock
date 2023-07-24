@@ -1701,6 +1701,13 @@
     opencollective-postinstall "^2.0.1"
     superstruct "^0.6.2"
 
+"@react-native-firebase/auth@^18.3.0":
+  version "18.3.0"
+  resolved "https://registry.npmjs.org/@react-native-firebase/auth/-/auth-18.3.0.tgz"
+  integrity sha512-2Z33pG+41RvYX6NxQfRhle+wAfhDKYStSANMVT4NMQKKhgmxryH0CXcfHA0RvfQysdrmBVX2td7l6hXriYL70A==
+  dependencies:
+    plist "^3.0.5"
+
 "@react-native-firebase/messaging@^18.3.0":
   version "18.3.0"
   resolved "https://registry.npmjs.org/@react-native-firebase/messaging/-/messaging-18.3.0.tgz"

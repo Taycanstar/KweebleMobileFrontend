@@ -15,10 +15,12 @@ import {useForm, Controller} from 'react-hook-form';
 import axios from 'axios';
 import Colors from '../../constants/Colors';
 
-const NewPasswordScreen = () => {
+const NewPasswordScreen = props => {
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(false);
+  const email = props?.route?.params?.email;
   const {
     control,
     handleSubmit,
@@ -26,6 +28,37 @@ const NewPasswordScreen = () => {
     formState: {errors},
   } = useForm();
   const navigation = useNavigation();
+
+  const onContinuePress = async () => {
+    if (password === confirmPassword) {
+      try {
+        const res = await axios.post(
+          `https://kweeble.herokuapp.com/auth/change-new-password/${email}`,
+          {password},
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+
+        console.log(res, 'success');
+
+        navigation.navigate('SignIn');
+      } catch (error) {
+        console.log(error);
+        setError(true);
+        setTimeout(() => {
+          setError(false);
+        }, 3500);
+      }
+    } else {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 3500);
+    }
+  };
 
   const onSubmitPressed = async () => {
     try {
@@ -64,9 +97,11 @@ const NewPasswordScreen = () => {
             <TextInput
               multiline={true}
               style={styles.input}
-              placeholder="Enter code"
-              onChangeText={newText => setCode(newText)}
-              value={code}
+              placeholder="Enter new password"
+              onChangeText={newText => setPassword(newText)}
+              value={password}
+              name="password"
+              secureTextEntry={true}
               autoCapitalize="none"
             />
           </View>
@@ -74,20 +109,19 @@ const NewPasswordScreen = () => {
             <TextInput
               multiline={true}
               style={styles.input}
-              placeholder="Enter new password"
-              onChangeText={newText => setPassword(newText)}
-              value={password}
-              name="password"
+              placeholder="Confirm new password"
+              onChangeText={newText => setConfirmPassword(newText)}
+              value={confirmPassword}
+              name="confirmpassword"
+              secureTextEntry={true}
               autoCapitalize="none"
             />
           </View>
-          {error && (
-            <Text style={styles.error}>One time code is incorrect</Text>
-          )}
+          {error && <Text style={styles.error}>Passwords do not match</Text>}
           <CustomButton
-            onPress={onSubmitPressed}
+            onPress={onContinuePress}
             type="primary"
-            text="Submit"
+            text="Continue"
           />
 
           <CustomButton

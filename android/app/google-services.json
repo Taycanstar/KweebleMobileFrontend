@@ -49,6 +49,43 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:224143201726:android:fb4f027970bbd09d33d5ef",
+        "android_client_info": {
+          "package_name": "com.kweeble.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "224143201726-kqudugkethev7bgt1m3nghdmkt1hvkgs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0Cm99ZzPwtTdwFzTdqBbMju87Dh3nL2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "224143201726-kqudugkethev7bgt1m3nghdmkt1hvkgs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "224143201726-pemuurbqlmohnfdojai6l0s10fh5dmhs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.kwe",
+                "app_store_id": "1667941410"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

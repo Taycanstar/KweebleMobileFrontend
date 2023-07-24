@@ -34,6 +34,8 @@ import Navigation from './src/navigation';
 import Test from './src/screens/Test';
 import {PermissionsAndroid} from 'react-native';
 
+import auth from '@react-native-firebase/auth';
+
 const App = () => {
   useEffect(() => {
     LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
@@ -49,7 +51,6 @@ const App = () => {
       console.log('Authorization status:', authStatus);
     }
   }
-
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
@@ -59,7 +60,23 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    messaging()
+      .subscribeToTopic('notifications')
+      .then(() => console.log('Subscribed to topic!'));
+
+    messaging()
+      .getToken()
+      .then(token => {
+        console.log(token, '<= token');
+      })
+      .catch(error => {
+        console.error(error);
+      });
     requestUserPermission();
+
+    messaging().onMessage(async remoteMessage => {
+      console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    });
   }, []);
   return (
     <GestureHandlerRootView style={{flex: 1, width: '100%'}}>

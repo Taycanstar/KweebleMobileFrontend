@@ -30,6 +30,8 @@
       android:name="com.google.android.geo.API_KEY"
       android:value="AIzaSyD7CuWeLRadLWtFKXr58ZXLqAd_jRrIAXY"/>
        
+
+ 
     </application>
 
     

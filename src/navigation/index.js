@@ -69,6 +69,7 @@ import ChatScreen2 from '../screens/ChatScreen2';
 import AddMembersScreen from '../screens/AddMembersScreen';
 import DmScreen from '../screens/DmScreen';
 import AddProductScreen from '../screens/AddProductScreen';
+import ConfirmOtp from '../screens/ConfirmOtp';
 import NewGroupScreen from '../screens/NewGroupScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import GroupChatScreen from '../screens/GroupChatScreen';
@@ -112,6 +113,7 @@ const AuthStack = () => {
       <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
+      <Stack.Screen name="ConfirmOtp" component={ConfirmOtp} />
       <Stack.Screen name="Terms" component={Terms} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
     </Stack.Navigator>

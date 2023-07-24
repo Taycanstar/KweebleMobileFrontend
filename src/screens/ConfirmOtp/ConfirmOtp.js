@@ -15,25 +15,23 @@ import {useForm, Controller} from 'react-hook-form';
 import axios from 'axios';
 import Colors from '../../constants/Colors';
 
-const ForgotPasswordScreen = () => {
-  // const [username, setUsername] = useState('');
-  const navigation = useNavigation();
-  const [email, setEmail] = useState('');
+const NewPasswordScreen = props => {
+  const [code, setCode] = useState('');
+  const email = props?.route?.params?.email;
   const [error, setError] = useState(false);
   const {
     control,
     handleSubmit,
-    getValues,
 
     formState: {errors},
   } = useForm();
+  const navigation = useNavigation();
 
-  const onSendPressed = async () => {
+  const onSubmitPressed = async () => {
     try {
       const res = await axios.post(
-        'https://kweeble.herokuapp.com/auth/forgot-password',
-        // 'http://localhost:8001/auth/forgot-password',
-        {email},
+        `https://kweeble.herokuapp.com/auth/confirm-otp`,
+        {confirmationToken: code, email},
         {
           headers: {
             'Content-Type': 'application/json',
@@ -41,9 +39,8 @@ const ForgotPasswordScreen = () => {
         },
       );
 
-      console.log(res, 'lo');
-
-      navigation.navigate('ConfirmOtp', {email});
+      navigation.navigate('NewPassword', {email});
+      console.log(res, 'success');
     } catch (error) {
       console.log(error);
       setError(true);
@@ -61,29 +58,26 @@ const ForgotPasswordScreen = () => {
     <SafeAreaView style={{flex: 1, backgroundColor: Colors.subtleGray}}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.root}>
-          <Text style={styles.title}>Enter your email</Text>
-          {/* <CustomInput
-          placeholder="Email"
-          name="email"
-          control={control}
-          rules={{required: 'Email is required'}}
-        /> */}
+          <Text style={styles.title}>Enter One-Time Code</Text>
+
           <View style={styles.inputContainer}>
             <TextInput
               multiline={true}
               style={styles.input}
-              placeholder="Email"
-              onChangeText={newText => setEmail(newText)}
-              value={email}
+              placeholder="Enter code"
+              onChangeText={newText => setCode(newText)}
+              value={code}
               autoCapitalize="none"
             />
           </View>
-          {error && <Text style={styles.error}>Invalid email</Text>}
 
+          {error && (
+            <Text style={styles.error}>One time code is incorrect</Text>
+          )}
           <CustomButton
-            onPress={onSendPressed}
+            onPress={onSubmitPressed}
             type="primary"
-            text="Send OTP"
+            text="Continue"
           />
 
           <CustomButton
@@ -137,4 +131,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ForgotPasswordScreen;
+export default NewPasswordScreen;
