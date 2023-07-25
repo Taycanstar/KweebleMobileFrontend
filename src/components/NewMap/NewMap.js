@@ -8,14 +8,27 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import {Callout} from 'react-native-maps';
 import {useNavigation} from '@react-navigation/native';
 
-const NewMap = ({evs}) => {
+const NewMap = ({evs, college}) => {
   const navigation = useNavigation();
-  const [markers, setMarkers] = useState([]);
+
   const [refresh, setRefresh] = useState([]);
+  const [isAnimating, setIsAnimating] = useState([]);
   const [marker, setMarker] = useState('');
-  const ref = useRef();
   const mapRef = useRef();
-  // console.log(markers);
+
+  const moveTo = async position => {
+    setIsAnimating(true);
+    const camera = await mapRef.current?.getCamera();
+    if (camera) {
+      camera.center = position;
+      mapRef.current?.animateCamera(
+        {center: position, altitude: 2500, zoom: 40, heading: 20, pitch: 2},
+        {duration: 1000},
+      );
+      setTimeout(() => setIsAnimating(false), 1000); // Reset isAnimating after the animation duration
+    }
+  };
+
   const [region, setRegion] = useState({
     latitude: 27.713011386872324,
     longitude: -82.68764074523352,
@@ -23,33 +36,65 @@ const NewMap = ({evs}) => {
     longitudeDelta: 0.0055,
   });
 
-  const [defRegion, setDefRegion] = useState({
-    latitude: 27.713011386872324,
-    longitude: -82.68764074523352,
-    latitudeDelta: 0.000005,
-    longitudeDelta: 0.0055,
-  });
-
-  const moveTo = async position => {
-    const camera = await mapRef.current?.getCamera();
-    if (camera) {
-      camera.center = position;
-      // mapRef.current?.animateCamera(camera, {duration: 1000});
-      mapRef.current?.animateCamera(
-        {center: position, altitude: 2500, zoom: 40, heading: 20, pitch: 2},
-        {duration: 1000},
-      );
+  useEffect(() => {
+    if (college === 'Eckerd College') {
+      setRegion({
+        latitude: 27.713011386872324,
+        longitude: -82.68764074523352,
+        latitudeDelta: 0.000005,
+        longitudeDelta: 0.0055,
+      });
+    } else if (college === 'Polk State WH Campus') {
+      setRegion({
+        latitude: 28.0327996,
+        longitude: -81.71406549999999,
+        latitudeDelta: 0.025,
+        longitudeDelta: 0.025,
+      });
+    } else if (college === 'Polk State Lakeland Campus') {
+      setRegion({
+        latitude: 27.713011386872324,
+        longitude: -82.68764074523352,
+        latitudeDelta: 0.000005,
+        longitudeDelta: 0.0055,
+      });
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // const moveTo = async position => {
+  //   const camera = await mapRef.current?.getCamera();
+  //   if (camera) {
+  //     camera.center = position;
+  //     // mapRef.current?.animateCamera(camera, {duration: 1000});
+  //     mapRef.current?.animateCamera(
+  //       {center: position, altitude: 2500, zoom: 40, heading: 20, pitch: 2},
+  //       {duration: 1000},
+  //     );
+  //   }
+  // };
+
+  // const onPlaceSelected = details => {
+  //   // const set = flag === 'origin' ? setOrigin : setDestination;
+  //   const position = {
+  //     latitude: details?.geometry.location.lat || 0,
+  //     longitude: details?.geometry.location.lng || 0,
+  //   };
+  //   // set(position);
+  //   moveTo(position);
+  // };
 
   const onPlaceSelected = details => {
-    // const set = flag === 'origin' ? setOrigin : setDestination;
     const position = {
       latitude: details?.geometry.location.lat || 0,
       longitude: details?.geometry.location.lng || 0,
     };
-    // set(position);
     moveTo(position);
+    setRegion({
+      ...region,
+      latitude: position.latitude,
+      longitude: position.longitude,
+    });
   };
 
   const months = [
@@ -111,20 +156,13 @@ const NewMap = ({evs}) => {
     return reff;
   }, [navigation]);
 
-  // function CustomMarker() {
-  //   return (
-  //     <View>
-  //       <Image
-  //         style={{width: 50, height: 50}}
-  //         source={require('../../../assets/images/iconstar.png')}
-  //       />
-  //     </View>
-  //   );
-  // }
+  console.log(region);
+
   return (
     <View style={{alignItems: 'center', justifyContent: 'center'}}>
       <GooglePlacesAutocomplete
         // ref={ref}
+        disabled={isAnimating}
         styles={{
           container: {
             flex: 0,
@@ -159,17 +197,23 @@ const NewMap = ({evs}) => {
         GooglePlacesDetailsQuery={{fields: 'geometry'}}
         fetchDetails={true}
         placeholder="Search"
-        onPress={async (info, details = null) => {
-          setRegion({
-            latitude: details?.geometry?.location?.lat,
-            longitude: details?.geometry?.location?.lng,
-            latitudeDelta: 0.025,
-            longitudeDelta: 0.025,
-          });
+        onPress={(info, details = null) => {
+          const position = {
+            latitude: details?.geometry.location.lat || 0,
+            longitude: details?.geometry.location.lng || 0,
+          };
+          // setRegion({
+          //   latitude: details?.geometry?.location?.lat,
+          //   longitude: details?.geometry?.location?.lng,
+          //   latitudeDelta: 0.025,
+          //   longitudeDelta: 0.025,
+          // });
           onPlaceSelected(details);
+          moveTo(position);
         }}
         query={{
-          key: 'AIzaSyD7CuWeLRadLWtFKXr58ZXLqAd_jRrIAXY',
+          // key: 'AIzaSyD7CuWeLRadLWtFKXr58ZXLqAd_jRrIAXY',
+          key: 'AIzaSyB0Cm99ZzPwtTdwFzTdqBbMju87Dh3nL2Y',
           language: 'en',
           // components: 'country: us',
           radius: 30000,

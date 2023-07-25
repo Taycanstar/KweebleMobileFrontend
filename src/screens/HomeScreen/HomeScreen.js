@@ -724,7 +724,7 @@ const Home = ({navigation, event, props}) => {
               </View>
             )
           ) : (
-            <NewMap evs={todaysEvents} />
+            <NewMap evs={todaysEvents} college={data.college} />
           )}
 
           {/* <ScrollView

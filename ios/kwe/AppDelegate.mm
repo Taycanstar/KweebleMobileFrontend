@@ -1,3 +1,4 @@
+#import <Firebase.h>
 #import "AppDelegate.h"
 
 #import <React/RCTBridge.h>
@@ -34,6 +35,9 @@
   RCTAppSetupPrepareApp(application);
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  if ([FIRApp defaultApp] == nil) {
+ [FIRApp configure]; 
+}
   
 
 #if RCT_NEW_ARCH_ENABLED
@@ -59,8 +63,9 @@
   [self.window makeKeyAndVisible];
   //   UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
   // UIViewController *vc = [sb instantiateInitialViewController];
-  // rootView.loadingView = vc.view;
+ 
   return YES;
+
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
