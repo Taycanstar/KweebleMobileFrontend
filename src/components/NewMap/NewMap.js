@@ -1,4 +1,11 @@
-import {View, Text, StyleSheet, SafeAreaView, Image} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+  Platform,
+} from 'react-native';
 import React, {useEffect, useState, useRef} from 'react';
 import {Marker} from 'react-native-maps';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
@@ -170,8 +177,6 @@ const NewMap = ({evs, college}) => {
     return reff;
   }, [navigation]);
 
-  console.log(region);
-
   return (
     <View style={{alignItems: 'center', justifyContent: 'center'}}>
       <GooglePlacesAutocomplete
@@ -226,8 +231,10 @@ const NewMap = ({evs, college}) => {
           moveTo(position);
         }}
         query={{
-          // key: 'AIzaSyD7CuWeLRadLWtFKXr58ZXLqAd_jRrIAXY',
-          key: 'AIzaSyB0Cm99ZzPwtTdwFzTdqBbMju87Dh3nL2Y',
+          key:
+            Platform.OS === 'ios'
+              ? 'AIzaSyC5NdZ0ZGiGqktGcJVyg-61Uw5GYYSIhCw'
+              : 'AIzaSyB0Cm99ZzPwtTdwFzTdqBbMju87Dh3nL2Y',
           language: 'en',
           // components: 'country: us',
           radius: 30000,
