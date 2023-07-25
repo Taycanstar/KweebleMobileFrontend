@@ -58,6 +58,20 @@ const NewMap = ({evs, college}) => {
         latitudeDelta: 0.000005,
         longitudeDelta: 0.0055,
       });
+    } else if (college === 'Polk State Lake Wales Campus') {
+      setRegion({
+        latitude: 27.90105,
+        longitude: -81.5878681,
+        latitudeDelta: 0.000005,
+        longitudeDelta: 0.0055,
+      });
+    } else {
+      setRegion({
+        latitude: 27.713011386872324,
+        longitude: -82.68764074523352,
+        latitudeDelta: 0.000005,
+        longitudeDelta: 0.0055,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

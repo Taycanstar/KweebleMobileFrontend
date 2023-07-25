@@ -172,7 +172,17 @@ const SignUpScreen = () => {
 
     {
       _id: 2,
-      name: 'Polk State College',
+      name: 'Polk State College WH Campus',
+      photo: require('../../../assets/images/polk.jpeg'),
+    },
+    {
+      _id: 3,
+      name: 'Polk State College Lakeland Campus',
+      photo: require('../../../assets/images/polk.jpeg'),
+    },
+    {
+      _id: 4,
+      name: 'Polk State College Lake Wales Campus',
       photo: require('../../../assets/images/polk.jpeg'),
     },
   ];
